@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . /app
 
-dockRUN mvn package
+RUN mvn package
 
 ENTRYPOINT [ "java", "-jar", "target/rssmail.jar" ]
