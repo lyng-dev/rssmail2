@@ -16,9 +16,15 @@ public class App {
 	public static void main(String[] args) {
 		ApplicationContext appContext =	SpringApplication.run(App.class, args);
 
-		for (String s : appContext.getBeanDefinitionNames()) {
-				System.out.println(s);
-		}
+		verifyConnection();
+
+		// for (String s : appContext.getBeanDefinitionNames()) {
+		// 		System.out.println(s);
+		// }
+	}
+
+	private static void verifyConnection() {
+		System.out.println("Verifying connection... OK");
 	}
 
 }

@@ -8,9 +8,11 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 @Service
 public class AwsSubscriptionServiceImpl implements SubscriptionService {
 
+  private DynamoDbAsyncClient db;
   
   @Autowired
   public AwsSubscriptionServiceImpl(DynamoDbAsyncClient dynamoDb) {
+    this.db = dynamoDb;
   }
 
   @Override

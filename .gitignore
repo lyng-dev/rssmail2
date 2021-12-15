@@ -1,7 +1,7 @@
 #ide
-.vscode/**
+.vscode/
 
-target/**
+target/
 
 
 # Compiled class file
