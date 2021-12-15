@@ -12,4 +12,4 @@ fi
 
 FINAL_NAME=$1
 
-docker build . -f docker/Dockerfile -t rssmail --build-arg finalName=$FINAL_NAME
+docker build . -f docker/Dockerfile -t rssmail --build-arg finalName=$FINAL_NAME --build-arg AWS_REGION=$AWS_REGION

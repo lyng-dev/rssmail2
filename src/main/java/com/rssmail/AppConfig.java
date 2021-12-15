@@ -15,16 +15,21 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClientBuilder;
 @Configuration
 public class AppConfig {
 
-    @Autowired 
-    Environment env;
+  @Autowired 
+  Environment env;
 
-    @Bean
-    public DynamoDbAsyncClientBuilder dynamoDbClientBuilder() {
-      return DynamoDbAsyncClient.builder().region(Region.EU_CENTRAL_1);
-    }
+  @Bean Region awsRegion() {
+    return Region.of(env.getProperty("AWS_REGION"));
+  }
 
-    @Bean
-    public DynamoDbAsyncClient dynamoDbClient(DynamoDbAsyncClientBuilder dynamodbDbBuilder) {
-        return dynamodbDbBuilder.build();
-    }
+  @Bean
+  public DynamoDbAsyncClientBuilder dynamoDbClientBuilder() {
+    return DynamoDbAsyncClient.builder().region(awsRegion());
+  }
+
+  @Bean
+  public DynamoDbAsyncClient dynamoDbClient(DynamoDbAsyncClientBuilder dynamodbDbBuilder) {
+      return dynamodbDbBuilder.build();
+  }
+
 }
