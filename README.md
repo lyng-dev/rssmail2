@@ -10,10 +10,6 @@ Subscribe to RSS feeds and have updates sent to something other than an RSS Read
 
 Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
-## Repository
-
-Run: `yarn set version berry` to switch to a version of yarn that supports monorepo structure
-
 ## AWS Account
 
 ### Expected monthly costs
