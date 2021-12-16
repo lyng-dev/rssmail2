@@ -1,9 +1,10 @@
 terraform {
   backend "s3" {
-    bucket = "rssmail-tfstate-dev"
-    dynamodb_table = "rssmail-tfstate-lock"
+    bucket = "rssmail-terraform-tfstate-dev"
+    dynamodb_table = "terraform-lock"
     key = "rssmail/tfstate"
     encrypt = true
     region = "us-east-1"
+    profile = "rssmail"
   }
 }

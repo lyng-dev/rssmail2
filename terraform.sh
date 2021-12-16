@@ -12,8 +12,8 @@ shift 1
 CMD=$@
 
 (
-  cd infrastructure/terraform/$ENV
   source .env
+  cd infrastructure/$ENV
   terraform init
   AWS_PROFILE=rssmail terraform $CMD
 )
