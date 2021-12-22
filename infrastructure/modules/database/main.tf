@@ -8,6 +8,14 @@ module "dynamodb_table" {
     {
       name = "id"
       type = "N"
+    },
+    {
+      name = "email"
+      type = "S"
+    },
+    {
+      name = "feedUrl",
+      type = "S"
     }
   ]
 

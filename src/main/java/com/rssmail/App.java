@@ -1,6 +1,6 @@
 package com.rssmail;
 
-import com.rssmail.services.AwsSubscriptionServiceImpl;
+import com.rssmail.services.AwsSubscriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,13 +13,10 @@ import software.amazon.awssdk.regions.Region;
 public class App {
 
 	@Autowired
-	private AwsSubscriptionServiceImpl service;
-	
-	@Autowired 
-	private Region awsRegion;
+	public AwsSubscriptionService awsSubscriptionService;
 
 	public static void main(String[] args) {
-		ApplicationContext appContext =	SpringApplication.run(App.class, args);
+		ApplicationContext appContext = SpringApplication.run(App.class, args);
 	}
 
 }

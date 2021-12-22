@@ -12,4 +12,5 @@ public class HealthController {
   public ResponseEntity<String> getHealth() {
     return ResponseEntity.ok("ok");
   }
+
 }
