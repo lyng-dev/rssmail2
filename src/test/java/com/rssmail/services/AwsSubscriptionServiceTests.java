@@ -2,14 +2,17 @@ package com.rssmail.services;
 
 import static org.mockito.ArgumentMatchers.anyString;
 
+import com.rssmail.TestAppConfig;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 
 @SpringBootTest
+@Import(TestAppConfig.class)
 public class AwsSubscriptionServiceTests {
 
   @Mock
@@ -44,3 +47,4 @@ public class AwsSubscriptionServiceTests {
   }
 
 }
+

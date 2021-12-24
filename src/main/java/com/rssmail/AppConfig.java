@@ -1,8 +1,6 @@
 package com.rssmail;
 
-import com.rssmail.services.AwsSubscriptionService;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -14,6 +12,10 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClientBuilder;
 @Configuration
 public class AppConfig {
 
+  //environment variables
+  @Value("${AWS_REGION:us-east-1}")
+  private String envAwsRegion;
+
   final Environment env;
 
   public AppConfig(Environment env) {
@@ -22,7 +24,7 @@ public class AppConfig {
 
   @Bean
   Region awsRegion() {
-    final String region = env.getProperty("AWS_REGION");
+    final String region = envAwsRegion;
     return Region.of(region);
   }
 

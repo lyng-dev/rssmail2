@@ -9,6 +9,12 @@ import org.springframework.context.ApplicationContext;
 
 import software.amazon.awssdk.regions.Region;
 
+/**
+ *
+ * @since
+ *
+ */
+
 @SpringBootApplication
 public class App {
 

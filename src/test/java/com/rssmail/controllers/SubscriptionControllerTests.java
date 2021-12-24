@@ -12,10 +12,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.io.FileOutputStream;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -24,18 +22,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
   MockitoExtension.class
 })
 @Import(TestAppConfig.class)
-public class HealthControllerTests {
+public class SubscriptionControllerTests {
 
     @Autowired
     private MockMvc mvc;
 
 	@Test
-	void testHealthEndpoint() throws Exception {
+	void testCreateSubscription() throws Exception {
     //Arrange
     //Act
-        ResultActions result =  this.mvc.perform(get("/health"))
+        ResultActions result =  this.mvc.perform(post("/subscription/create"))
       .andExpect(status().isOk()); //Assert
 
 	}
+
+    @Test
+    void testDeleteSubscription() throws Exception {
+        //Arrange
+        //Act
+        ResultActions result =  this.mvc.perform(delete("/subscription/delete"))
+                .andExpect(status().isOk()); //Assert
+
+    }
 
 }
