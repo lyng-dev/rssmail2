@@ -2,11 +2,8 @@ package com.rssmail;
 
 import com.rssmail.services.AwsSubscriptionService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 import software.amazon.awssdk.auth.credentials.*;
@@ -38,7 +35,7 @@ public class AppConfig {
   public String envAwsRegion;
 
   //fields: application properties
-  @Value("${aws.dynamodb.subscriptions-table-name:banana}")
+  @Value("${aws.dynamodb.subscriptions-table-name:rssmail-subscriptions}")
   public String awsDynamoDbSubscriptionsTableName;
 
   //Beans

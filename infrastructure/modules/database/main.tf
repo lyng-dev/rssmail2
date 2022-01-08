@@ -8,26 +8,8 @@ module "dynamodb_table" {
     {
       name = "subscriptionId"
       type = "S"
-    },
-    {
-      name = "recipientEmail"
-      type = "S"
-    },
-    {
-      name = "feedUrl",
-      type = "S"
     }
   ]
-
-  global_secondary_indexes = [
-    {
-      name               = "recipientIndex"
-      hash_key           = "recipientEmail"
-      range_key          = "feedUrl"
-      projection_type    = "INCLUDE"
-      non_key_attributes = ["description"]
-    }
-  ]  
 
   tags = {
     project_name = var.project_name
