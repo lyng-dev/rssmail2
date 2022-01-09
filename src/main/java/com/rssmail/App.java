@@ -1,5 +1,6 @@
 package com.rssmail;
 
+import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.AwsSubscriptionService;
 
 
@@ -22,5 +23,17 @@ public class App {
 		// for (String beanName : beanNames) {
 		// 	System.out.println(beanName + " : " + appContext.getBean(beanName).getClass().toString());
 		// }
+
+		try {
+			var service = (RssMailScheduler)appContext.getBean("rssMailScheduler");
+			service.start();
+		} catch (Exception e) {
+			System.out.println("something failed");
+		}
+
+		// var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
+		// var subscriptionId = subscriptionService.createSubscription("http://google.com", "s@sunlyng.dk");
+		// subscriptionService.validateSubscription(subscriptionId,"abc");
+		// subscriptionService.deleteSubscription(subscriptionId,"s@sunlyng");
 	}
 }

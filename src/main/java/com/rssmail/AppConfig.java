@@ -1,6 +1,10 @@
 package com.rssmail;
 
+import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.AwsSubscriptionService;
+
+import org.quartz.SchedulerException;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -72,5 +76,10 @@ public class AppConfig {
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
     return new AwsSubscriptionService(dynamoDbAsyncClient, awsDynamoDbSubscriptionsTableName);
+  }
+
+  @Bean 
+  public RssMailScheduler rssMailScheduler() throws SchedulerException {
+    return new RssMailScheduler(new StdSchedulerFactory());
   }
 }
