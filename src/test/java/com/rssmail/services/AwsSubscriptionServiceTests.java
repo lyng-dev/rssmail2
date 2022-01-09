@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.rssmail.TestAppConfig;
+import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;

@@ -1,7 +1,8 @@
 package com.rssmail;
 
 import com.rssmail.scheduler.RssMailScheduler;
-import com.rssmail.services.AwsSubscriptionService;
+import com.rssmail.services.RssService.RssService;
+import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
@@ -81,5 +82,10 @@ public class AppConfig {
   @Bean 
   public RssMailScheduler rssMailScheduler() throws SchedulerException {
     return new RssMailScheduler(new StdSchedulerFactory());
+  }
+
+  @Bean 
+  public RssService rssService() {
+    return new RssService();
   }
 }

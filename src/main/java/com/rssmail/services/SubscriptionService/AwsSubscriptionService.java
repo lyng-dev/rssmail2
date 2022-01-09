@@ -1,4 +1,4 @@
-package com.rssmail.services;
+package com.rssmail.services.SubscriptionService;
 
 import java.time.Instant;
 import java.util.HashMap;

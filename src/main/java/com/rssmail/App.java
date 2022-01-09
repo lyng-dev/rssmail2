@@ -1,8 +1,8 @@
 package com.rssmail;
 
 import com.rssmail.scheduler.RssMailScheduler;
-import com.rssmail.services.AwsSubscriptionService;
-
+import com.rssmail.services.RssService.RssService;
+import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -27,6 +27,13 @@ public class App {
 		try {
 			var service = (RssMailScheduler)appContext.getBean("rssMailScheduler");
 			service.start();
+		} catch (Exception e) {
+			System.out.println("something failed");
+		}
+
+		try {
+			var rss = (RssService)appContext.getBean("rssService");
+			rss.read();
 		} catch (Exception e) {
 			System.out.println("something failed");
 		}

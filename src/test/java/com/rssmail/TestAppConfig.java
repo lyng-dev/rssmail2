@@ -1,6 +1,6 @@
 package com.rssmail;
 
-import com.rssmail.services.AwsSubscriptionService;
+import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

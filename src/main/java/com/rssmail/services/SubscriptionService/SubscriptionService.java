@@ -1,4 +1,4 @@
-package com.rssmail.services;
+package com.rssmail.services.SubscriptionService;
 
 public interface SubscriptionService {
   String createSubscription(String feedUrl, String recipientEmail);
