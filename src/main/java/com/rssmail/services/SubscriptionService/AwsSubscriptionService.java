@@ -53,8 +53,8 @@ public class AwsSubscriptionService implements SubscriptionService {
       .build();
 
     //execute request
-    final var putItemFuture = db.putItem(request);
-    final var response = putItemFuture.join();
+    final var future = db.putItem(request);
+    final var response = future.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
@@ -78,8 +78,8 @@ public class AwsSubscriptionService implements SubscriptionService {
       .build();
 
     //execute request
-    final var deleteItemFuture = db.deleteItem(request);
-    final var response = deleteItemFuture.join();
+    final var future = db.deleteItem(request);
+    final var response = future.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
@@ -108,8 +108,8 @@ public class AwsSubscriptionService implements SubscriptionService {
       .build();
 
     //execute request
-    final var updateItemFuture = db.updateItem(request);
-    final var response = updateItemFuture.join();
+    final var future = db.updateItem(request);
+    final var response = future.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
