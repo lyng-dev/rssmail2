@@ -1,6 +1,10 @@
 package com.rssmail.scheduler;
 
 import java.util.Date;
+
+import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
+import com.rssmail.scheduler.jobs.ReadRssFeedJob;
+
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -16,14 +20,15 @@ public class RssMailScheduler {
   SchedulerFactory schedulerFactory;
   Scheduler scheduler;
 
-  public RssMailScheduler(SchedulerFactory schedulerFactory) throws SchedulerException {
+  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
     scheduler = (Scheduler) this.schedulerFactory.getScheduler();
+    scheduler.setJobFactory(applicationContextJobFactory);
   }
 
   public void start() throws SchedulerException {
     JobDetail job = JobBuilder
-      .newJob(HelloJob.class)
+      .newJob(ReadRssFeedJob.class)
       .withIdentity("job1", "group1")
       .build();  
 

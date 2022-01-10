@@ -1,12 +1,17 @@
 package com.rssmail;
 
 import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
+import com.rssmail.scheduler.jobs.ReadRssFeedJob;
 import com.rssmail.services.RssService.RssService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
+import org.quartz.Job;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -21,6 +26,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 @Configuration
 public class AppConfig {
 
+  @Autowired private ApplicationContext appContext;
+  
   //constructor
   public AppConfig(Environment env) {
     this.env = env;
@@ -69,11 +76,6 @@ public class AppConfig {
       return dynamodbDbBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
   }
 
-//  @Bean
-//  public DynamoDbClient dynamoDbClient(DynamoDbClientBuilder dynamoDbClientBuilder) {
-//      return dynamoDbClientBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
-//  }
-
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
     return new AwsSubscriptionService(dynamoDbAsyncClient, awsDynamoDbSubscriptionsTableName);
@@ -81,11 +83,6 @@ public class AppConfig {
 
   @Bean 
   public RssMailScheduler rssMailScheduler() throws SchedulerException {
-    return new RssMailScheduler(new StdSchedulerFactory());
-  }
-
-  @Bean 
-  public RssService rssService() {
-    return new RssService();
+    return new RssMailScheduler(new StdSchedulerFactory(), appContext.getBean(ApplicationContextJobFactory.class));
   }
 }
