@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReadRssFeedJob implements Job {
 
-  private RssService rssService;
+  final private RssService rssService;
 
   public ReadRssFeedJob(RssService rssService) {
     this.rssService = rssService;

@@ -11,7 +11,7 @@ import org.quartz.spi.TriggerFiredBundle;
 @Component
 public class ApplicationContextJobFactory implements JobFactory {
 
-  private ApplicationContext appContext;
+  final private ApplicationContext appContext;
 
   public ApplicationContextJobFactory(ApplicationContext appContext) {
     this.appContext = appContext;
@@ -19,8 +19,8 @@ public class ApplicationContextJobFactory implements JobFactory {
 
   @Override
   public Job newJob(TriggerFiredBundle bundle, Scheduler scheduler) throws SchedulerException {
-    var jobDetail = bundle.getJobDetail();
-    var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass());
+    final var jobDetail = bundle.getJobDetail();
+    final var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass());
     return job;
   }
   

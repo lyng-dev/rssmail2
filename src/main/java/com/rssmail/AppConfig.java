@@ -2,11 +2,8 @@ package com.rssmail;
 
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
-import com.rssmail.scheduler.jobs.ReadRssFeedJob;
-import com.rssmail.services.RssService.RssService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
-import org.quartz.Job;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

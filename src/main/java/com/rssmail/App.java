@@ -17,7 +17,7 @@ import java.util.Map;
 public class App {
 
 	public static void main(String[] args) {
-		ApplicationContext appContext = SpringApplication.run(App.class, args);
+		final ApplicationContext appContext = SpringApplication.run(App.class, args);
 		// String[] beanNames = appContext.getBeanDefinitionNames();
 
 		// for (String beanName : beanNames) {

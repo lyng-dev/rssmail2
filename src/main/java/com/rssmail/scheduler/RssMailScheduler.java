@@ -2,7 +2,7 @@ package com.rssmail.scheduler;
 
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
-import org.quartz.JobBuilder;
+import static org.quartz.JobBuilder.newJob;
 import org.quartz.JobDetail;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import org.quartz.SchedulerException;
@@ -13,8 +13,8 @@ import org.quartz.Scheduler;
 
 public class RssMailScheduler {
 
-  SchedulerFactory schedulerFactory;
-  Scheduler scheduler;
+  final private SchedulerFactory schedulerFactory;
+  final private Scheduler scheduler;
 
   public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
@@ -23,19 +23,18 @@ public class RssMailScheduler {
   }
 
   public void start() throws SchedulerException {
-    JobDetail job = JobBuilder
-      .newJob(ReadRssFeedJob.class)
+    final var job = newJob(ReadRssFeedJob.class)
       .withIdentity("job1", "group1")
       .build();  
 
     //prepare schedule
-    var schedule = simpleSchedule().
+    final var schedule = simpleSchedule().
       withIntervalInSeconds(60).
       repeatForever();
 
 
     // Trigger the job to run on the next round minute
-    Trigger trigger = newTrigger()
+    final var trigger = newTrigger()
       .withIdentity("trigger1", "group1")
       .withSchedule(schedule)
       .build();

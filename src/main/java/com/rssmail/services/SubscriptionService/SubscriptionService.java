@@ -1,7 +1,7 @@
 package com.rssmail.services.SubscriptionService;
 
 public interface SubscriptionService {
-  String createSubscription(String feedUrl, String recipientEmail);
-  Boolean deleteSubscription(String subscriptionId, String recipientEmail);
-  Boolean validateSubscription(String subscriptionid, String validationCode);
+  public String createSubscription(String feedUrl, String recipientEmail);
+  public Boolean deleteSubscription(String subscriptionId, String recipientEmail);
+  public Boolean validateSubscription(String subscriptionid, String validationCode);
 }
