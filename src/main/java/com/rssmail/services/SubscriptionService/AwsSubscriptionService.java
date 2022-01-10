@@ -13,8 +13,10 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
+import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 @Service
@@ -131,7 +133,31 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   @Override
   public List<Subscription> getAllSubscription() {
-    // TODO Auto-generated method stub
-    return null;
-  }
+
+    //values to update in item
+    final var itemValues = new HashMap<String, AttributeValueUpdate>();
+    itemValues.put("isValidated", AttributeValueUpdate.builder().value(AttributeValue.builder().bool(true).build()).action(AttributeAction.PUT).build());
+
+    //prepare request
+    final var request = ScanRequest.builder()
+      .tableName(subscriptionTableName)
+      .build();
+
+    //execute request
+    final var future = db.scan(request);
+    final var response = future.join();
+
+    //if result is a valid
+    if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK && response.hasItems()) {
+      try {
+        List<Subscription> result = response.items()
+          .stream()
+          .map(x -> new Subscription(x.get("subscriptionId").s(), x.get("feedUrl").s(), x.get("recipientEmail").s()))
+          .toList();
+        return result;
+      } catch (Exception e) {
+        System.out.println("something bad happened");
+      }
+    }
+    return List.<Subscription>of();  }
 }

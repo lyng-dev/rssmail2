@@ -1,6 +1,7 @@
 package com.rssmail.services.SubscriptionService;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.rssmail.models.Subscription;
 
