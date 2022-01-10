@@ -15,6 +15,8 @@ import org.quartz.Scheduler;
 
 public class RssMailScheduler {
 
+  private int counter = 0;
+
   final private SchedulerFactory schedulerFactory;
   final private Scheduler scheduler;
 
@@ -26,11 +28,19 @@ public class RssMailScheduler {
 
   public void start(String feedUrl) throws SchedulerException {
 
+    counter++;
+
+    //assign jobnumber
+    final var jobNumber = String.format("job%s", this.counter);
+    final var triggerNumber = String.format("trigger%s", this.counter);
+
+    //map dynamic data
     final var jobDataMap = new JobDataMap();
     jobDataMap.put("feedUrl", feedUrl);
 
+    //create job
     final var job = newJob(ReadRssFeedJob.class)
-      .withIdentity("job1", "group1")
+      .withIdentity(jobNumber, "group1")
       .build();  
 
     //prepare schedule
@@ -38,10 +48,9 @@ public class RssMailScheduler {
       withIntervalInSeconds(5).
       repeatForever();
 
-
     // Trigger the job to run on the next round minute
     final var trigger = newTrigger()
-      .withIdentity("trigger1", "group1")
+      .withIdentity(triggerNumber, "group1")
       .withSchedule(schedule)
       .usingJobData(jobDataMap)
       .build();

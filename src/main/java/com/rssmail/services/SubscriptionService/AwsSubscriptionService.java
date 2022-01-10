@@ -30,6 +30,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     this.subscriptionTableName = subscriptionTableName;
   }
 
+  //TODO: Should validate that the feed is returning good content.
   @Override
   public String createSubscription(String feedUrl, String recipientEmail) {
     //generate subscriptionId
