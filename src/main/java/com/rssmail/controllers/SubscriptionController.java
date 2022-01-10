@@ -19,4 +19,9 @@ public class SubscriptionController {
         return ResponseEntity.ok("ok");
     }
 
+    @RequestMapping(value = "/validate", method = RequestMethod.GET)
+    public ResponseEntity<String> validateSubscription() {
+        return ResponseEntity.ok("ok");
+    }
+
 }
