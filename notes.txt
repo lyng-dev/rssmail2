@@ -1,0 +1,16 @@
+https://stackoverflow.com/questions/1984381/find-out-if-something-has-changed-in-a-website-using-an-rss-feed
+
+RSS Feed changes:
+
+Request Headers
+ - If-Modified-Since
+ - If-None-Match
+
+Response Headers
+ - Last-Modified
+ - ETag
+ - Status code Not Modified 304 / 200 means changed
+
+ Compare links
+ pubdate
+ dc:date  

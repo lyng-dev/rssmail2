@@ -1,8 +1,5 @@
 package com.rssmail.scheduler.jobs;
 
-import com.rssmail.services.RssService.RssService;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.quartz.Job;

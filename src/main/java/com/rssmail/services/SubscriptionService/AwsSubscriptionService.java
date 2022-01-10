@@ -17,8 +17,8 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 @Service
 public class AwsSubscriptionService implements SubscriptionService {
 
-  final DynamoDbAsyncClient db;
-  private String subscriptionTableName;
+  final private DynamoDbAsyncClient db;
+  final private String subscriptionTableName;
 
   public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, String subscriptionTableName) {
     this.db = dynamoDb;
@@ -27,19 +27,18 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   @Override
   public String createSubscription(String feedUrl, String recipientEmail) {
-    
     //generate subscriptionId
-    var subscriptionId = UUID.randomUUID().toString();
+    final var subscriptionId = UUID.randomUUID().toString();
 
     //generate default validationState
-    var defaultValidationState = false;
-    var validationCode = UUID.randomUUID().toString();
+    final var defaultValidationState = false;
+    final var validationCode = UUID.randomUUID().toString();
 
     //generate createdTime
-    var created = Instant.now().toString();
+    final var created = Instant.now().toString();
     
     //prepare new subscription
-    var itemValues = new HashMap<String, AttributeValue>();
+    final var itemValues = new HashMap<String, AttributeValue>();
     itemValues.put("subscriptionId", AttributeValue.builder().s(subscriptionId).build());
     itemValues.put("feedUrl", AttributeValue.builder().s(feedUrl).build());
     itemValues.put("recipientEmail", AttributeValue.builder().s(recipientEmail).build());
@@ -48,14 +47,14 @@ public class AwsSubscriptionService implements SubscriptionService {
     itemValues.put("createdDate", AttributeValue.builder().s(created).build());
 
     //prepare request
-    PutItemRequest request = PutItemRequest.builder()
+    final var request = PutItemRequest.builder()
       .tableName(subscriptionTableName)
       .item(itemValues)
       .build();
 
     //execute request
-    var putItemFuture = db.putItem(request);
-    var response = putItemFuture.join();
+    final var putItemFuture = db.putItem(request);
+    final var response = putItemFuture.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
@@ -69,19 +68,18 @@ public class AwsSubscriptionService implements SubscriptionService {
   @Override
   public Boolean deleteSubscription(String subscriptionId, String recipientEmail) {
    
-    //prepare new subscription
-    var deleteItemValues = new HashMap<String, AttributeValue>();
-    deleteItemValues.put("subscriptionId", AttributeValue.builder().s(subscriptionId).build());
+    //item to delete
+    final var itemKey = generateSubscriptionItemKey(subscriptionId);
 
     //prepare request
-    DeleteItemRequest request = DeleteItemRequest.builder()
+    final var request = DeleteItemRequest.builder()
       .tableName(subscriptionTableName)
-      .key(deleteItemValues)
+      .key(itemKey)
       .build();
 
     //execute request
-    var deleteItemFuture = db.deleteItem(request);
-    var response = deleteItemFuture.join();
+    final var deleteItemFuture = db.deleteItem(request);
+    final var response = deleteItemFuture.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
@@ -96,23 +94,22 @@ public class AwsSubscriptionService implements SubscriptionService {
   public Boolean validateSubscription(String subscriptionId, String validationCode) {
     
     //item to update
-    var itemKey = new HashMap<String,AttributeValue>();
-    itemKey.put("subscriptionId", AttributeValue.builder().s(subscriptionId).build());
+    final var itemKey = generateSubscriptionItemKey(subscriptionId);
 
     //values to update in item
-    var updateItemValues = new HashMap<String, AttributeValueUpdate>();
-    updateItemValues.put("isValidated", AttributeValueUpdate.builder().value(AttributeValue.builder().bool(true).build()).action(AttributeAction.PUT).build());
+    final var itemValues = new HashMap<String, AttributeValueUpdate>();
+    itemValues.put("isValidated", AttributeValueUpdate.builder().value(AttributeValue.builder().bool(true).build()).action(AttributeAction.PUT).build());
 
     //prepare request
-    UpdateItemRequest request = UpdateItemRequest.builder()
+    final var request = UpdateItemRequest.builder()
       .tableName(subscriptionTableName)
       .key(itemKey)
-      .attributeUpdates(updateItemValues)
+      .attributeUpdates(itemValues)
       .build();
 
     //execute request
-    var updateItemFuture = db.updateItem(request);
-    var response = updateItemFuture.join();
+    final var updateItemFuture = db.updateItem(request);
+    final var response = updateItemFuture.join();
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
@@ -123,4 +120,9 @@ public class AwsSubscriptionService implements SubscriptionService {
       return false;
   }
 
+  private HashMap<String,AttributeValue> generateSubscriptionItemKey(String subscriptionId) {
+    final var itemKey = new HashMap<String,AttributeValue>();
+    itemKey.put("subscriptionId", AttributeValue.builder().s(subscriptionId).build());
+    return itemKey;
+  }
 }

@@ -1,10 +1,7 @@
 package com.rssmail.scheduler;
 
-import java.util.Date;
-
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
-
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -12,7 +9,6 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import static org.quartz.TriggerBuilder.newTrigger;
-import org.quartz.DateBuilder;
 import org.quartz.Scheduler;
 
 public class RssMailScheduler {
@@ -34,7 +30,7 @@ public class RssMailScheduler {
 
     //prepare schedule
     var schedule = simpleSchedule().
-      withIntervalInSeconds(5).
+      withIntervalInSeconds(60).
       repeatForever();
 
 
