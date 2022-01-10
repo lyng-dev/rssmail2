@@ -15,11 +15,16 @@ public class ReadRssFeedJob implements Job {
 
   public ReadRssFeedJob(RssService rssService) {
     this.rssService = rssService;
-  }
+  } 
 
   public void execute(JobExecutionContext context) throws JobExecutionException {
     try {
-      System.out.println(String.format("\n------------------\n%s", rssService.read()));
+      //load jobdata
+      final var jobDataMap = context.getMergedJobDataMap();
+      final var feedUrl = jobDataMap.get("feedUrl").toString();
+
+      //extract feed
+      System.out.println(String.format("\n------------------\n%s", rssService.read(feedUrl)));
     } catch (IllegalArgumentException | FeedException | IOException e) {
       e.printStackTrace();
     }

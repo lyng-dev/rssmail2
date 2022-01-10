@@ -2,7 +2,10 @@ package com.rssmail.services.SubscriptionService;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+
+import com.rssmail.models.Subscription;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -124,5 +127,11 @@ public class AwsSubscriptionService implements SubscriptionService {
     final var itemKey = new HashMap<String,AttributeValue>();
     itemKey.put("subscriptionId", AttributeValue.builder().s(subscriptionId).build());
     return itemKey;
+  }
+
+  @Override
+  public List<Subscription> getAllSubscription() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

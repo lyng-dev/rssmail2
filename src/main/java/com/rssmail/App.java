@@ -25,18 +25,18 @@ public class App {
 		// }
 
 		try {
-			var service = (RssMailScheduler)appContext.getBean("rssMailScheduler");
-			service.start();
+			var rssScheduler = (RssMailScheduler)appContext.getBean("rssMailScheduler");
+			rssScheduler.start("https://aws.amazon.com/blogs/aws/feed/");
 		} catch (Exception e) {
 			System.out.println("something failed");
 		}
 
-		try {
-			var rss = (RssService)appContext.getBean("rssService");
-			rss.read();
-		} catch (Exception e) {
-			System.out.println("something failed");
-		}
+		// try {
+		// 	var rss = (RssService)appContext.getBean("rssService");
+		// 	rss.read();
+		// } catch (Exception e) {
+		// 	System.out.println("something failed");
+		// }
 
 		// var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
 		// var subscriptionId = subscriptionService.createSubscription("http://google.com", "s@sunlyng.dk");

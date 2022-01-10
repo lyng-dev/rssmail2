@@ -3,6 +3,8 @@ package com.rssmail.scheduler;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
 import static org.quartz.JobBuilder.newJob;
+
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import org.quartz.SchedulerException;
@@ -22,14 +24,18 @@ public class RssMailScheduler {
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public void start() throws SchedulerException {
+  public void start(String feedUrl) throws SchedulerException {
+
+    final var jobDataMap = new JobDataMap();
+    jobDataMap.put("feedUrl", feedUrl);
+
     final var job = newJob(ReadRssFeedJob.class)
       .withIdentity("job1", "group1")
       .build();  
 
     //prepare schedule
     final var schedule = simpleSchedule().
-      withIntervalInSeconds(60).
+      withIntervalInSeconds(5).
       repeatForever();
 
 
@@ -37,6 +43,7 @@ public class RssMailScheduler {
     final var trigger = newTrigger()
       .withIdentity("trigger1", "group1")
       .withSchedule(schedule)
+      .usingJobData(jobDataMap)
       .build();
       
     scheduler.scheduleJob(job, trigger);

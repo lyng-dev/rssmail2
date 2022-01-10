@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RssService {
-  public String read() throws IllegalArgumentException, FeedException, IOException {
-    URL feedSource = new URL("https://jyllands-posten.dk/?service=rssfeed&mode=area&areaNames=level0,topflow");
+  public String read(String feedUrl) throws IllegalArgumentException, FeedException, IOException {
+    URL feedSource = new URL(feedUrl);
     SyndFeedInput input = new SyndFeedInput();
     SyndFeed feed = input.build(new XmlReader(feedSource));
     return feed.toString();
