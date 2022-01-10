@@ -14,9 +14,10 @@ public class App {
 	public static void main(String[] args) {
 		final ApplicationContext appContext = SpringApplication.run(App.class, args);
 		try {
-			var rssScheduler = (RssMailScheduler)appContext.getBean("rssMailScheduler");
-			var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
-			subscriptionService.getAllSubscription().stream().forEach(x -> {
+			final var rssScheduler = (RssMailScheduler)appContext.getBean("rssMailScheduler");
+			final var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
+			final var filterMustBeValidated = true;
+			subscriptionService.getAllSubscription(filterMustBeValidated).stream().forEach(x -> {
 				try {
 					rssScheduler.start(x.getFeedUrl());
 				} catch (SchedulerException e) {

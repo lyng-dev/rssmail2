@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
-import software.amazon.awssdk.services.dynamodb.model.BatchGetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
@@ -133,7 +132,7 @@ public class AwsSubscriptionService implements SubscriptionService {
   }
 
   @Override
-  public List<Subscription> getAllSubscription() {
+  public List<Subscription> getAllSubscription(Boolean isValidated) {
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
@@ -151,9 +150,13 @@ public class AwsSubscriptionService implements SubscriptionService {
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK && response.hasItems()) {
       try {
-        List<Subscription> result = response.items()
+        final List<Subscription> result = response.items()
           .stream()
-          .map(x -> new Subscription(x.get("subscriptionId").s(), x.get("feedUrl").s(), x.get("recipientEmail").s()))
+          .takeWhile(x -> x.get("isValidated").bool() == isValidated) //check for validationState
+          .map(x -> new Subscription(
+            x.get("subscriptionId").s(), 
+            x.get("feedUrl").s(), 
+            x.get("recipientEmail").s()))
           .toList();
         return result;
       } catch (Exception e) {
