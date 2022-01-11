@@ -51,6 +51,13 @@
 			<version>1.18.0</version>
 		</dependency>
 
+		<!--The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.68</version>
+		</dependency>
+
 	</dependencies>
 	<packaging>jar</packaging>
 	<build>
