@@ -2,6 +2,9 @@ package com.rssmail.scheduler;
 
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
+import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
+import com.rssmail.utils.hashing.MerkleTree;
+
 import static org.quartz.JobBuilder.newJob;
 
 import org.quartz.JobDataMap;
@@ -18,13 +21,19 @@ public class RssMailScheduler {
   final private SchedulerFactory schedulerFactory;
   final private Scheduler scheduler;
 
-  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory) throws SchedulerException {
+  private MerkleTree merkleTree;
+
+  private FeedSubscriptionLastUpdatedContentStore contentStore;
+
+  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, MerkleTree merkleTree, FeedSubscriptionLastUpdatedContentStore contentStore) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
+    this.merkleTree = merkleTree;
+    this.contentStore = contentStore;
     scheduler = (Scheduler) this.schedulerFactory.getScheduler();
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public void start(String feedUrl) throws SchedulerException {
+  public void start(String feedUrl, String subscriptionId) throws SchedulerException {
 
     counter++; //update counter
 
@@ -36,6 +45,9 @@ public class RssMailScheduler {
     //map dynamic data
     final var jobDataMap = new JobDataMap();
     jobDataMap.put("feedUrl", feedUrl);
+    jobDataMap.put("subscriptionId", subscriptionId);
+    jobDataMap.put("merkleTree", merkleTree);
+    jobDataMap.put("feedSubscriptionLastUpdatedContentStore", contentStore);
 
     //create job
     final var job = newJob(ReadRssFeedJob.class)

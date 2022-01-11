@@ -25,7 +25,7 @@ public class App {
 			final var filterMustBeValidated = true;
 			subscriptionService.getAllSubscription(filterMustBeValidated).stream().forEach(x -> {
 				try {
-					rssScheduler.start(x.getFeedUrl());
+					rssScheduler.start(x.getFeedUrl(), x.getSubscription());
 				} catch (SchedulerException e) {
 					e.printStackTrace();
 				}
