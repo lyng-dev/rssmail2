@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class MerkleTree {
 
   public static Node generateTree(ArrayList<String> dataBlocks) {

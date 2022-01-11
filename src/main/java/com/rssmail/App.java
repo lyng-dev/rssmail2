@@ -33,13 +33,6 @@ public class App {
 		} catch (Exception e) {
 			System.out.println("something failed");
 		}
-		// ArrayList<String> dataBlocks = new ArrayList<>();
-		// dataBlocks.add("Captain America");
-		// dataBlocks.add("Iron Man");
-		// dataBlocks.add("God of thunder");
-		// dataBlocks.add("Doctor strange");
-		// Node root = MerkleTree.generateTree(dataBlocks);
-		// printLevelOrderTraversal(root);
 	}
 
   // private static void printLevelOrderTraversal(Node root) {
