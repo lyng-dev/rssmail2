@@ -7,7 +7,7 @@ import java.util.Queue;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MerkleTree {
+public class HashTree {
 
   public static Node generateTree(ArrayList<String> dataBlocks) {
       ArrayList<Node> childNodes = new ArrayList<>();

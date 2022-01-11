@@ -42,7 +42,7 @@ public class ReadRssFeedJob implements Job {
       //extract feed
       final var newFeedItems = rssService.getFeed(feedUrl);
 
-      //map feeditems to merkle trees for quick comparison
+      //map feeditems to hashTree for quick comparison
       final var newFeedItemHashes = new ArrayList<String>(newFeedItems.stream().map(i -> i.getHash()).toList());
 
       //loop through fake history, and remove from new feed, leaving behind only new items

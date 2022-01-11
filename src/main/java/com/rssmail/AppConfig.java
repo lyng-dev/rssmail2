@@ -4,7 +4,7 @@ import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
-import com.rssmail.utils.hashing.MerkleTree;
+import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
@@ -85,7 +85,7 @@ public class AppConfig {
     return new RssMailScheduler(
       new StdSchedulerFactory(), 
       appContext.getBean(ApplicationContextJobFactory.class), 
-      appContext.getBean(MerkleTree.class), 
+      appContext.getBean(HashTree.class), 
       appContext.getBean(FeedSubscriptionLastUpdatedContentStore.class));
   }
 }

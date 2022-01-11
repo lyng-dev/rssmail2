@@ -6,7 +6,7 @@ import java.util.Queue;
 
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
-import com.rssmail.utils.hashing.MerkleTree;
+import com.rssmail.utils.hashing.HashTree;
 import com.rssmail.utils.hashing.Node;
 
 import org.quartz.SchedulerException;

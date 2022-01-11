@@ -13,7 +13,7 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import com.rssmail.models.FeedItem;
-import com.rssmail.utils.hashing.MerkleTree;
+import com.rssmail.utils.hashing.HashTree;
 
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class RssService {
 
   
 
-  public RssService(MerkleTree merkleTree) {
+  public RssService(HashTree hashTree) {
   }
 
   public ArrayList<FeedItem> getFeed(String feedUrl) throws IllegalArgumentException, FeedException, IOException {
@@ -50,7 +50,7 @@ public class RssService {
     if (feedItem.getLink().length() > 0) dataBlocks.add(feedItem.getTitle());
     if (feedItem.getPubDate() != null) dataBlocks.add(feedItem.getPubDate());
 
-    var tree = MerkleTree.generateTree(dataBlocks);
+    var tree = HashTree.generateTree(dataBlocks);
     feedItem.setHash(tree.getHash());
 
     return feedItem;
