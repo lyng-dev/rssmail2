@@ -12,7 +12,7 @@ public class FeedItem {
   private String title;
   private String link;
   private String description;
-  private String pubDate;
+  private String publishedDate;
 
   public FeedItem() {
   }
@@ -25,12 +25,12 @@ public class FeedItem {
     this.uri = uri;
   }
 
-  public String getPubDate() {
-    return pubDate;
+  public String getPublishedDate() {
+    return publishedDate;
   }
 
-  public void setPubDate(String pubDate) {
-    this.pubDate = pubDate;
+  public void setPublishedDate(String publishedDate) {
+    this.publishedDate = publishedDate;
   }
 
   public String getDescription() {

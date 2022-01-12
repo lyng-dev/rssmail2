@@ -42,13 +42,13 @@ public class RssService {
     if (item.getUri().length() > 0) feedItem.setUri(item.getUri());
     if (item.getTitle().length() > 0) feedItem.setTitle(item.getTitle());
     if (item.getLink().length() > 0) feedItem.setLink(item.getLink());
-    if (item.getPublishedDate() != null) feedItem.setPubDate(item.getPublishedDate().toString());
+    if (item.getPublishedDate() != null) feedItem.setPublishedDate(item.getPublishedDate().toString());
 
     final var dataBlocks = new ArrayList<String>();
     if (feedItem.getUri().length() > 0) dataBlocks.add(feedItem.getUri());
     if (feedItem.getTitle().length() > 0) dataBlocks.add(feedItem.getTitle());
     if (feedItem.getLink().length() > 0) dataBlocks.add(feedItem.getTitle());
-    if (feedItem.getPubDate() != null) dataBlocks.add(feedItem.getPubDate());
+    if (feedItem.getPublishedDate() != null) dataBlocks.add(feedItem.getPublishedDate());
 
     var tree = HashTree.generateTree(dataBlocks);
     feedItem.setHash(tree.getHash());
