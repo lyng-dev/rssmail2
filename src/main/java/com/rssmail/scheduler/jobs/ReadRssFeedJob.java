@@ -8,6 +8,9 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import com.rometools.rome.io.FeedException;
+import com.rssmail.models.FeedItem;
+import com.rssmail.models.SubscriptionUpdate;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
 import com.rssmail.services.RssService.RssService;
 import com.rssmail.utils.hashing.Node;
@@ -34,6 +37,7 @@ public class ReadRssFeedJob implements Job {
       final var jobDataMap = context.getMergedJobDataMap();
       final var feedUrl = jobDataMap.get("feedUrl").toString();
       final var subscriptionId = jobDataMap.get("subscriptionId").toString();
+      final var subscriptionUpdatesQueue = (Queue<SubscriptionUpdate>)jobDataMap.get("subscriptionUpdatesQueue");
       final var feedSubscriptionLastUpdatedContentStore = (FeedSubscriptionLastUpdatedContentStore)jobDataMap.get("feedSubscriptionLastUpdatedContentStore");
       final var lastUpdatedFeedItemHashes = feedSubscriptionLastUpdatedContentStore.getFeedSubscription();
       final var currentJobSubscriptionFeedItemHashes = lastUpdatedFeedItemHashes.get(subscriptionId);
@@ -54,7 +58,13 @@ public class ReadRssFeedJob implements Job {
         System.out.print("FEED HAS CHANGED. Item hash added is: ");
         System.out.println(updatedFeedItemHashes);
         System.out.println("Which is: ");
-        newFeedItems.stream().filter(i -> updatedFeedItemHashes.contains(i.getHash())).forEach(i -> System.out.println(i.getTitle()));
+        newFeedItems.stream().filter(i -> updatedFeedItemHashes.contains(i.getHash())).forEach(i -> {
+          System.out.println(i.getTitle());
+          var subscriptionUpdate = new SubscriptionUpdate(subscriptionId, i);
+          subscriptionUpdatesQueue.offer(subscriptionUpdate);
+        });
+        System.out.print("Queue updated, now contains: ");
+        System.out.println(String.format("%s items", subscriptionUpdatesQueue.size()));
       }
 
       FeedSubscriptionLastUpdatedContentStore.put(subscriptionId, newFeedItemHashes);

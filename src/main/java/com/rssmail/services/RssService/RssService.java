@@ -48,7 +48,6 @@ public class RssService {
     if (feedItem.getUri().length() > 0) dataBlocks.add(feedItem.getUri());
     if (feedItem.getTitle().length() > 0) dataBlocks.add(feedItem.getTitle());
     if (feedItem.getLink().length() > 0) dataBlocks.add(feedItem.getTitle());
-    if (feedItem.getPublishedDate() != null) dataBlocks.add(feedItem.getPublishedDate());
 
     var tree = HashTree.generateTree(dataBlocks);
     feedItem.setHash(tree.getHash());

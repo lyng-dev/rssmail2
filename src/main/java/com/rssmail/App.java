@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 import com.rssmail.utils.hashing.HashTree;
 import com.rssmail.utils.hashing.Node;
@@ -17,22 +18,30 @@ import org.springframework.context.ApplicationContext;
 @SpringBootApplication
 public class App {
 
-	public static void main(String[] args) {
+  //TODO: Consider using Spring @Scheduled annotation instead of Quartz. All we 
+  // need is simple timers. So basically Cron expressions, which is more or less
+  // what Spring Scheduled does. Also more lightweight.
+  public static void main(String[] args) {
 		final ApplicationContext appContext = SpringApplication.run(App.class, args);
 		try {
 			final var rssScheduler = (RssMailScheduler)appContext.getBean("rssMailScheduler");
+			final var subscriptionUpdateConsumer = (SubscriptionUpdateConsumer)appContext.getBean("subscriptionUpdateConsumer");
 			final var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
 			final var filterMustBeValidated = true;
-			subscriptionService.getAllSubscription(filterMustBeValidated).stream().forEach(x -> {
+
+      subscriptionService.getAllSubscription(filterMustBeValidated).stream().forEach(x -> {
 				try {
 					rssScheduler.start(x.getFeedUrl(), x.getSubscription());
 				} catch (SchedulerException e) {
 					e.printStackTrace();
 				}
 			});
+
+      subscriptionUpdateConsumer.start();
 		} catch (Exception e) {
 			System.out.println("something failed");
 		}
+    
 	}
 
   // private static void printLevelOrderTraversal(Node root) {

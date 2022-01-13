@@ -20,14 +20,26 @@ public class ApplicationContextJobFactory implements JobFactory {
   @Override
   public Job newJob(TriggerFiredBundle bundle, Scheduler scheduler) throws SchedulerException {
     final var jobDetail = bundle.getJobDetail();
-    final var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass());
+    final var job = appContext.getBean(jobDetail.getJobClass());
     return job;
   }
 
-  public Job newJobWithParameters(TriggerFiredBundle bundle, Scheduler scheduler, String feedUrl) throws SchedulerException {
-    final var jobDetail = bundle.getJobDetail();
-    final var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass(), feedUrl);
-    return job;
-  }
+  // public Job newRssFeedJob(TriggerFiredBundle bundle, Scheduler scheduler) throws SchedulerException {
+  //   final var jobDetail = bundle.getJobDetail();
+  //   final var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass());
+  //   return job;
+  // }
+
+  // public Job newConsumeSubscriptionUpdateJob(TriggerFiredBundle bundle, Scheduler scheduler) throws SchedulerException {
+  //   final var jobDetail = bundle.getJobDetail();
+  //   final var job = (ConsumeSubscriptionUpdate)appContext.getBean(jobDetail.getJobClass());
+  //   return job;
+  // }
+
+  // public Job newJobWithParameters(TriggerFiredBundle bundle, Scheduler scheduler, String feedUrl) throws SchedulerException {
+  //   final var jobDetail = bundle.getJobDetail();
+  //   final var job = (ReadRssFeedJob)appContext.getBean(jobDetail.getJobClass(), feedUrl);
+  //   return job;
+  // }
   
 }

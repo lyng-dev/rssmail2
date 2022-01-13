@@ -8,63 +8,57 @@ import java.util.Queue;
 
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
-import com.rssmail.scheduler.jobs.ReadRssFeedJob;
+import com.rssmail.scheduler.jobs.ConsumeSubscriptionUpdate;
 import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
-import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 
-public class RssMailScheduler {
+public class SubscriptionUpdateConsumer {
 
-  private int counter = 0;
 
   final private SchedulerFactory schedulerFactory;
   final private Scheduler scheduler;
 
-  private HashTree hashTree;
-
+  private int counter = 0;
   private FeedSubscriptionLastUpdatedContentStore contentStore;
-
   private Queue<SubscriptionUpdate> subscriptionUpdatesQueue;
 
-  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HashTree hashTree, FeedSubscriptionLastUpdatedContentStore contentStore, Queue<SubscriptionUpdate> queue) throws SchedulerException {
+
+  public SubscriptionUpdateConsumer(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, FeedSubscriptionLastUpdatedContentStore contentStore, java.util.Queue<SubscriptionUpdate> queue) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
-    this.hashTree = hashTree;
     this.contentStore = contentStore;
     this.subscriptionUpdatesQueue = queue;
     scheduler = (Scheduler) this.schedulerFactory.getScheduler();
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public void start(String feedUrl, String subscriptionId) throws SchedulerException {
-    System.out.println("RssMailScheduler producer..");
+
+  public void start() throws SchedulerException {
+
+    System.out.println("Starting updates consumer..");
 
     counter++; //update counter
 
     //incrementally name and group
     final var jobNumber = String.format("job%s", this.counter);
     final var triggerNumber = String.format("trigger%s", this.counter);
-    final var groupName = "rssFeedReader";
+    final var groupName = "subscriptionUpdateConsumer";
 
     //map dynamic data
     final var jobDataMap = new JobDataMap();
-    jobDataMap.put("feedUrl", feedUrl);
-    jobDataMap.put("subscriptionId", subscriptionId);
-    jobDataMap.put("hashTree", hashTree);
     jobDataMap.put("feedSubscriptionLastUpdatedContentStore", contentStore);
     jobDataMap.put("subscriptionUpdatesQueue", subscriptionUpdatesQueue);
-
     //create job
-    final var job = newJob(ReadRssFeedJob.class)
+    final var job = newJob(ConsumeSubscriptionUpdate.class)
       .withIdentity(jobNumber, groupName)
       .build();  
 
     //prepare schedule
     final var schedule = simpleSchedule().
-      withIntervalInSeconds(5).
+      withIntervalInSeconds(17).
       repeatForever();
 
     // Trigger the job to run on the next round minute
@@ -75,6 +69,6 @@ public class RssMailScheduler {
       .build();
       
     scheduler.scheduleJob(job, trigger);
-    scheduler.start();
-  }
+    scheduler.start();  }
+  
 }

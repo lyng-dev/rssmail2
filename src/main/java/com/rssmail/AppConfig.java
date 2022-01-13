@@ -1,6 +1,12 @@
 package com.rssmail;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
+import com.rssmail.models.FeedItem;
+import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
@@ -10,9 +16,11 @@ import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 import software.amazon.awssdk.auth.credentials.*;
@@ -86,6 +94,27 @@ public class AppConfig {
       new StdSchedulerFactory(), 
       appContext.getBean(ApplicationContextJobFactory.class), 
       appContext.getBean(HashTree.class), 
-      appContext.getBean(FeedSubscriptionLastUpdatedContentStore.class));
+      (FeedSubscriptionLastUpdatedContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
+      (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"));
+  }
+  
+  @Bean SubscriptionUpdateConsumer subscriptionUpdateConsumer() throws SchedulerException {
+    return new SubscriptionUpdateConsumer(
+      new StdSchedulerFactory(), 
+      appContext.getBean(ApplicationContextJobFactory.class), 
+      (FeedSubscriptionLastUpdatedContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
+      (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"));
+  }
+
+  @Bean
+  @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+  public Queue<SubscriptionUpdate> subscriptionUpdatesQueue() {
+    return new LinkedList<>();
+  }
+
+  @Bean
+  @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+  public FeedSubscriptionLastUpdatedContentStore feedSubscriptionLastUpdatedContentStore() {
+    return new FeedSubscriptionLastUpdatedContentStore();
   }
 }
