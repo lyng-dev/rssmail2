@@ -3,13 +3,13 @@ package com.rssmail;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.rssmail.models.FeedItem;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
-import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
+import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
+import com.rssmail.services.SubscriptionService.SubscriptionService;
 import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.SchedulerException;
@@ -94,7 +94,7 @@ public class AppConfig {
       new StdSchedulerFactory(), 
       appContext.getBean(ApplicationContextJobFactory.class), 
       appContext.getBean(HashTree.class), 
-      (FeedSubscriptionLastUpdatedContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
+      (HandledSubscriptionFeedItemsContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
       (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"));
   }
   
@@ -102,8 +102,9 @@ public class AppConfig {
     return new SubscriptionUpdateConsumer(
       new StdSchedulerFactory(), 
       appContext.getBean(ApplicationContextJobFactory.class), 
-      (FeedSubscriptionLastUpdatedContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
-      (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"));
+      (HandledSubscriptionFeedItemsContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
+      (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"),
+      (SubscriptionService)appContext.getBean("awsSubscriptionService"));
   }
 
   @Bean
@@ -114,7 +115,7 @@ public class AppConfig {
 
   @Bean
   @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-  public FeedSubscriptionLastUpdatedContentStore feedSubscriptionLastUpdatedContentStore() {
-    return new FeedSubscriptionLastUpdatedContentStore();
+  public HandledSubscriptionFeedItemsContentStore feedSubscriptionLastUpdatedContentStore() {
+    return new HandledSubscriptionFeedItemsContentStore();
   }
 }

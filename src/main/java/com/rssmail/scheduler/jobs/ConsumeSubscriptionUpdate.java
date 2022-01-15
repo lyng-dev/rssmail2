@@ -2,7 +2,9 @@ package com.rssmail.scheduler.jobs;
 
 import java.util.Queue;
 
+import com.rssmail.services.SubscriptionService.SubscriptionService;
 import com.rssmail.models.SubscriptionUpdate;
+import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -18,13 +20,24 @@ public class ConsumeSubscriptionUpdate implements Job {
 
       //load jobdata
       final var jobDataMap = context.getMergedJobDataMap();
+      final var lastUpdatedContentStore = (HandledSubscriptionFeedItemsContentStore)jobDataMap.get("feedSubscriptionLastUpdatedContentStore");
+      final var subscriptionService = (SubscriptionService)jobDataMap.get("subscriptionService");
+
 
       //read data
       final var subscriptionUpdatesQueue = (Queue<SubscriptionUpdate>)jobDataMap.get("subscriptionUpdatesQueue");
-      var possibleUpdate = subscriptionUpdatesQueue.poll();
-      if (possibleUpdate != null) {
-        System.out.println("Popped item off the queue: " + possibleUpdate.feedItem.getTitle());
+      var update = subscriptionUpdatesQueue.poll();
+      if (update != null) {
+        var feedItem = update.feedItem;
+        var subscription = update.subscription;
+        System.out.println("Popped item off the queue: " + feedItem.getTitle());
+        System.out.println(String.format("Handled SubscriptionId: %s, RecipientEmail: %s, Title: %s", subscription.getId(), subscription.getRecipientEmail(), feedItem.getTitle()));
+        lastUpdatedContentStore.get(subscription.getId()).add(feedItem);
+        System.out.println("Added item to ContentStore");
+        subscriptionService.persistHandledFeedItems(subscription.getId(), lastUpdatedContentStore.get(subscription.getId()));
+        System.out.println("Persisted handled items.");
       }
+
 
   }
   

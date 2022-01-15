@@ -4,12 +4,15 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.util.ArrayList;
 import java.util.Queue;
 
+import com.rssmail.models.FeedItem;
+import com.rssmail.models.Subscription;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
-import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
+import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.JobDataMap;
@@ -26,11 +29,11 @@ public class RssMailScheduler {
 
   private HashTree hashTree;
 
-  private FeedSubscriptionLastUpdatedContentStore contentStore;
+  private HandledSubscriptionFeedItemsContentStore contentStore;
 
   private Queue<SubscriptionUpdate> subscriptionUpdatesQueue;
 
-  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HashTree hashTree, FeedSubscriptionLastUpdatedContentStore contentStore, Queue<SubscriptionUpdate> queue) throws SchedulerException {
+  public RssMailScheduler(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HashTree hashTree, HandledSubscriptionFeedItemsContentStore contentStore, Queue<SubscriptionUpdate> queue) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
     this.hashTree = hashTree;
     this.contentStore = contentStore;
@@ -39,7 +42,7 @@ public class RssMailScheduler {
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public void start(String feedUrl, String subscriptionId) throws SchedulerException {
+  public void start(Subscription subscription) throws SchedulerException {
     System.out.println("RssMailScheduler producer..");
 
     counter++; //update counter
@@ -49,10 +52,13 @@ public class RssMailScheduler {
     final var triggerNumber = String.format("trigger%s", this.counter);
     final var groupName = "rssFeedReader";
 
+    //populate the contentstore
+    contentStore.put(subscription.getId(), subscription.getHandledFeedItems());
+
     //map dynamic data
     final var jobDataMap = new JobDataMap();
-    jobDataMap.put("feedUrl", feedUrl);
-    jobDataMap.put("subscriptionId", subscriptionId);
+    jobDataMap.put("feedUrl", subscription.getFeedUrl());
+    jobDataMap.put("subscription", subscription);
     jobDataMap.put("hashTree", hashTree);
     jobDataMap.put("feedSubscriptionLastUpdatedContentStore", contentStore);
     jobDataMap.put("subscriptionUpdatesQueue", subscriptionUpdatesQueue);
@@ -64,7 +70,7 @@ public class RssMailScheduler {
 
     //prepare schedule
     final var schedule = simpleSchedule().
-      withIntervalInSeconds(5).
+      withIntervalInSeconds(30).
       repeatForever();
 
     // Trigger the job to run on the next round minute

@@ -1,10 +1,14 @@
 package com.rssmail.services.SubscriptionService;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
 
 import org.springframework.http.HttpStatus;
@@ -14,6 +18,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
@@ -132,7 +137,51 @@ public class AwsSubscriptionService implements SubscriptionService {
   }
 
   @Override
+  public Subscription getSubscription(String subscriptionId) {
+
+    //object mapper
+    final var objectMapper = new ObjectMapper();
+
+    //item to retrieve
+    final var itemKey = generateSubscriptionItemKey(subscriptionId);
+
+    //prepare request
+    final var request = GetItemRequest.builder()
+      .tableName(subscriptionTableName)
+      .key(itemKey)
+      .build();
+
+    //execute request
+    final var future = db.getItem(request);
+    final var response = future.join();
+
+    //if result is a valid
+    if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK && response.hasItem()) {
+      try {
+        final Map<String, AttributeValue> result = response.item();
+          var subscription = new Subscription(
+            result.get("subscriptionId").s(), 
+            result.get("feedUrl").s(), 
+            result.get("recipientEmail").s(),
+            (ArrayList<FeedItem>)objectMapper.readValue(result.get("handledFeedItems").s(), ArrayList.class)
+          );
+
+        System.out.print("Retrieved " + subscription.getHandledFeedItems().size() + " items from persistant storage");
+        return subscription;
+      } catch (Exception e) {
+        System.out.println("something bad happened");
+      }
+    }
+
+    //found no subscription
+    return null;
+  }
+
+  @Override
   public List<Subscription> getAllSubscription(Boolean isValidated) {
+
+    //object mapper
+    final var objectMapper = new ObjectMapper();
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
@@ -156,7 +205,8 @@ public class AwsSubscriptionService implements SubscriptionService {
           .map(x -> new Subscription(
             x.get("subscriptionId").s(), 
             x.get("feedUrl").s(), 
-            x.get("recipientEmail").s()))
+            x.get("recipientEmail").s(),
+            safeDeserializeFeedItems(x.get("handledFeedItems").s())))
           .toList();
         return result;
       } catch (Exception e) {
@@ -164,4 +214,66 @@ public class AwsSubscriptionService implements SubscriptionService {
       }
     }
     return List.<Subscription>of();  }
+
+  @Override
+  public Boolean persistHandledFeedItems(String subscriptionId, ArrayList<FeedItem> feedItems) {
+    
+    //item to update
+    final var itemKey = generateSubscriptionItemKey(subscriptionId);
+
+    //serialize feedItems, or fail persist
+    final var objectMapper = new ObjectMapper();
+    String serializedFeedItems = "{}"; 
+    var serializationFailed = true;
+    try { 
+      serializedFeedItems = objectMapper.writeValueAsString(feedItems);
+      serializationFailed = false;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (serializationFailed) {
+      System.out.println("Failed to serialize FeedItems. Operation halted. Nothing was persisted to storage.");
+      return false;
+    }
+
+    //values to update in item
+    final var itemValues = new HashMap<String, AttributeValueUpdate>();
+    itemValues.put("handledFeedItems", AttributeValueUpdate.builder().value(AttributeValue.builder().s(serializedFeedItems).build()).action(AttributeAction.PUT).build());
+
+    //prepare request
+    final var request = UpdateItemRequest.builder()
+      .tableName(subscriptionTableName)
+      .key(itemKey)
+      .attributeUpdates(itemValues)
+      .build();
+
+    //execute request
+    final var future = db.updateItem(request);
+    final var response = future.join();
+
+    //if result is a valid
+    if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
+      System.out.println("Updated HandledFeedItems to: " + serializedFeedItems);
+      return true;
+    }
+    else 
+      return false;
+  }
+
+  private ArrayList<FeedItem> safeDeserializeFeedItems(String feedItems) {
+ 
+    //object mapper
+    final var objectMapper = new ObjectMapper();
+
+    //atttempt deserialization
+    try {
+        var result = (ArrayList<FeedItem>)objectMapper.readValue(feedItems, ArrayList.class);
+        return result;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    //failed 
+    return new ArrayList<FeedItem>();
+  }
 }

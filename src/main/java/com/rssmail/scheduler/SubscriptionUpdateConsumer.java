@@ -9,7 +9,8 @@ import java.util.Queue;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ConsumeSubscriptionUpdate;
-import com.rssmail.services.FeedSubscriptionLastUpdatedContentStore.FeedSubscriptionLastUpdatedContentStore;
+import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
+import com.rssmail.services.SubscriptionService.SubscriptionService;
 
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
@@ -23,14 +24,16 @@ public class SubscriptionUpdateConsumer {
   final private Scheduler scheduler;
 
   private int counter = 0;
-  private FeedSubscriptionLastUpdatedContentStore contentStore;
+  private HandledSubscriptionFeedItemsContentStore contentStore;
   private Queue<SubscriptionUpdate> subscriptionUpdatesQueue;
+  private SubscriptionService subscriptionService;
 
 
-  public SubscriptionUpdateConsumer(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, FeedSubscriptionLastUpdatedContentStore contentStore, java.util.Queue<SubscriptionUpdate> queue) throws SchedulerException {
+  public SubscriptionUpdateConsumer(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HandledSubscriptionFeedItemsContentStore contentStore, java.util.Queue<SubscriptionUpdate> queue, SubscriptionService subscriptionService) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
     this.contentStore = contentStore;
     this.subscriptionUpdatesQueue = queue;
+    this.subscriptionService = subscriptionService;
     scheduler = (Scheduler) this.schedulerFactory.getScheduler();
     scheduler.setJobFactory(applicationContextJobFactory);
   }
@@ -51,15 +54,17 @@ public class SubscriptionUpdateConsumer {
     final var jobDataMap = new JobDataMap();
     jobDataMap.put("feedSubscriptionLastUpdatedContentStore", contentStore);
     jobDataMap.put("subscriptionUpdatesQueue", subscriptionUpdatesQueue);
+    jobDataMap.put("subscriptionService", subscriptionService);
+
     //create job
     final var job = newJob(ConsumeSubscriptionUpdate.class)
       .withIdentity(jobNumber, groupName)
       .build();  
 
     //prepare schedule
-    final var schedule = simpleSchedule().
-      withIntervalInSeconds(17).
-      repeatForever();
+    final var schedule = simpleSchedule()
+      .withIntervalInMilliseconds(100)
+      .repeatForever();
 
     // Trigger the job to run on the next round minute
     final var trigger = newTrigger()

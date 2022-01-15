@@ -3,10 +3,10 @@ package com.rssmail.models;
 public class SubscriptionUpdate {
 
   public FeedItem feedItem;
-  public String subscriptionId;
+  public Subscription subscription;
 
-  public SubscriptionUpdate(String subscriptionId, FeedItem feedItem) {
-    this.subscriptionId = subscriptionId;
+  public SubscriptionUpdate(Subscription subscription, FeedItem feedItem) {
+    this.subscription = subscription;
     this.feedItem = feedItem;
   }
   

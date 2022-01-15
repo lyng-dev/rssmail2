@@ -1,15 +1,31 @@
 package com.rssmail.models;
 
+import java.util.ArrayList;
+
 public class Subscription {
 
-  private final String subscription;
+  private final String id;
   private final String feedUrl;
   private final String recipientEmail;
+  private ArrayList<FeedItem> handledFeedItems;
 
-  public Subscription(String subscription, String feedUrl, String recipientEmail) {
-    this.subscription = subscription;
+  public Subscription(String id, String feedUrl, String recipientEmail) {
+    this.id = id;
     this.feedUrl = feedUrl;
     this.recipientEmail = recipientEmail;
+  }
+
+  public Subscription(String id, String feedUrl, String recipientEmail, ArrayList<FeedItem> feedItems) {
+    this(id, feedUrl, recipientEmail);
+    this.handledFeedItems = feedItems;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public ArrayList<FeedItem> getHandledFeedItems() {
+    return handledFeedItems;
   }
 
   public String getRecipientEmail() {
@@ -18,10 +34,6 @@ public class Subscription {
 
   public String getFeedUrl() {
     return feedUrl;
-  }
-
-  public String getSubscription() {
-    return subscription;
   }
   
 }
