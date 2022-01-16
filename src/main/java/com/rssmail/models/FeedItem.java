@@ -3,15 +3,18 @@ package com.rssmail.models;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class FeedItem {
 
+  @JsonIgnore
   private HashMap<String, String> dataBlocks = new HashMap<>();
-  public String hash;
-  public String uri;
-  public String title;
-  public String link;
-  public String description;
-  public String publishedDate;
+  private String hash;
+  private String uri;
+  private String title;
+  private String link;
+  private String description;
+  private String publishedDate;
 
   public FeedItem() {
 
