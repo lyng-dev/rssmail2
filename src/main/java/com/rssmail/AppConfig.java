@@ -7,6 +7,7 @@ import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
+import com.rssmail.services.EmailService.AwsSesEmailService;
 import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
@@ -30,6 +31,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClientBuilder;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
+import software.amazon.awssdk.services.ses.SesAsyncClient;
+import software.amazon.awssdk.services.ses.SesAsyncClientBuilder;
 
 @Configuration
 public class AppConfig {
@@ -61,6 +64,21 @@ public class AppConfig {
   //Beans
   @Bean AwsBasicCredentials getAwsCredentials() {
     return AwsBasicCredentials.create(envAwsAccessKeyId, envAwsSecretAccessKey);
+  }
+
+  @Bean
+  public SesAsyncClientBuilder sesAsyncClientBuilder() {
+    return SesAsyncClient.builder().region(awsRegion());
+  }
+
+  @Bean
+  public SesAsyncClientBuilder sesClientBuilder() {
+    return SesAsyncClient.builder().region(awsRegion());
+  }
+
+  @Bean
+  public SesAsyncClient sesAsyncClient(SesAsyncClientBuilder sesAsyncClientBuilder) {
+      return sesAsyncClientBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
   }
 
   @Bean
@@ -107,6 +125,11 @@ public class AppConfig {
       (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"),
       (SubscriptionService)appContext.getBean("awsSubscriptionService"),
       (EmailService)appContext.getBean(EmailService.class));
+  }
+
+  @Bean 
+  public EmailService awsEmailService() {
+    return new AwsSesEmailService(appContext.getBean(SesAsyncClient.class));
   }
 
   @Bean
