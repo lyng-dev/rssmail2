@@ -3,12 +3,7 @@ package com.rssmail.services.RssService;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.stream.Collectors;
-
 import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
@@ -17,21 +12,17 @@ import com.rssmail.utils.hashing.HashTree;
 
 import org.springframework.stereotype.Service;
 
-
-
 @Service
 public class RssService {
-
-  
 
   public RssService(HashTree hashTree) {
   }
 
   public ArrayList<FeedItem> getFeed(String feedUrl) throws IllegalArgumentException, FeedException, IOException {
-    URL feedSource = new URL(feedUrl);
-    SyndFeedInput input = new SyndFeedInput();
-    SyndFeed feed = input.build(new XmlReader(feedSource));
-    var entries = feed.getEntries();
+    final var feedSource = new URL(feedUrl);
+    final var input = new SyndFeedInput();
+    final var feed = input.build(new XmlReader(feedSource));
+    final var entries = feed.getEntries();
 
     return new ArrayList<FeedItem>(entries.stream().map(e -> mapSyndEntryToFeedItem(e)).toList());
   }
@@ -49,7 +40,7 @@ public class RssService {
     if (feedItem.getTitle().length() > 0) dataBlocks.add(feedItem.getTitle());
     if (feedItem.getLink().length() > 0) dataBlocks.add(feedItem.getTitle());
 
-    var tree = HashTree.generateTree(dataBlocks);
+    final var tree = HashTree.generateTree(dataBlocks);
     feedItem.setHash(tree.getHash());
 
     return feedItem;

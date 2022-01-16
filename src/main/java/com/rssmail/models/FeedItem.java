@@ -1,14 +1,7 @@
 package com.rssmail.models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class FeedItem {
 
-  @JsonIgnore
-  private HashMap<String, String> dataBlocks = new HashMap<>();
   private String hash;
   private String uri;
   private String title;
@@ -67,13 +60,4 @@ public class FeedItem {
   public void setHash(String hash) {
     this.hash = hash;
   }
-
-  public String putDataBlock(String keyName, String value) {
-    return dataBlocks.put(keyName, value);
-  }
-
-  public ArrayList<String> getDataBlocks() {
-    return new ArrayList<String>(dataBlocks.entrySet().stream().map(x -> x.getValue()).toList());
-  }
-  
 }

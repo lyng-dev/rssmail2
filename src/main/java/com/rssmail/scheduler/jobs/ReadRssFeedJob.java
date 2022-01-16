@@ -32,35 +32,23 @@ public class ReadRssFeedJob implements Job {
 
       //load jobdata
       final var jobDataMap = context.getMergedJobDataMap();
-      System.out.print("1");
       final var feedUrl = jobDataMap.get("feedUrl").toString();
-      System.out.print("2");
       final var subscription = (Subscription)jobDataMap.get("subscription");
-      System.out.print("3");
       final var subscriptionUpdatesQueue = (Queue<SubscriptionUpdate>)jobDataMap.get("subscriptionUpdatesQueue");
-      System.out.print("4");
       final var lastUpdatedContentStore = (HandledSubscriptionFeedItemsContentStore)jobDataMap.get("feedSubscriptionLastUpdatedContentStore");
-      System.out.print("5>>>>");
-      final var currentItems = lastUpdatedContentStore.get(subscription.getId());
-      System.out.println(currentItems.size());
-      currentItems.stream().forEach(x -> System.out.print(x));
       final var lastUpdatedItemHashes = lastUpdatedContentStore.get(subscription.getId())
                                                                .stream()
                                                                .map(x -> x.getHash())
                                                                .collect(Collectors.toList());
 
-      System.out.print("6");
       //extract feed
       final var newFeedItems = rssService.getFeed(feedUrl);
-      System.out.print("7");
       final var newFeedItemHashes = new ArrayList<String>(newFeedItems.stream()
                                                                       .map(i -> i.getHash())
                                                                       .toList());
-      System.out.print("8");
 
       //loop through fake history, and remove from new feed, leaving behind only new items
       var isUnchanged = lastUpdatedItemHashes != null ? lastUpdatedItemHashes.containsAll(newFeedItemHashes) : true;
-      System.out.print("9");
 
       if (!isUnchanged) {
         var updatedFeedItemHashes = new ArrayList<String>(newFeedItemHashes);
