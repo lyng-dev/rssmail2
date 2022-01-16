@@ -57,6 +57,9 @@ public class AppConfig {
   @Value("${RSSMAIL_AWS_REGION}")
   public String envAwsRegion;
 
+  @Value("${senderemail:rssmail@lyng.dev}")
+  public String senderEmail;
+
   //fields: application properties
   @Value("${aws.dynamodb.subscriptions-table-name:rssmail-subscriptions}")
   public String awsDynamoDbSubscriptionsTableName;
@@ -129,7 +132,7 @@ public class AppConfig {
 
   @Bean 
   public EmailService awsEmailService() {
-    return new AwsSesEmailService(appContext.getBean(SesAsyncClient.class));
+    return new AwsSesEmailService(appContext.getBean(SesAsyncClient.class), senderEmail);
   }
 
   @Bean

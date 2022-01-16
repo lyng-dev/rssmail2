@@ -57,7 +57,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     itemValues.put("validationCode", AttributeValue.builder().s(validationCode).build());
     itemValues.put("createdDate", AttributeValue.builder().s(created).build());
 
-    //prepare request
+    //prepare request 
     final var request = PutItemRequest.builder()
       .tableName(subscriptionTableName)
       .item(itemValues)
