@@ -7,6 +7,7 @@ import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
@@ -104,7 +105,8 @@ public class AppConfig {
       appContext.getBean(ApplicationContextJobFactory.class), 
       (HandledSubscriptionFeedItemsContentStore)appContext.getBean("feedSubscriptionLastUpdatedContentStore"),
       (Queue<SubscriptionUpdate>)appContext.getBean("subscriptionUpdatesQueue"),
-      (SubscriptionService)appContext.getBean("awsSubscriptionService"));
+      (SubscriptionService)appContext.getBean("awsSubscriptionService"),
+      (EmailService)appContext.getBean(EmailService.class));
   }
 
   @Bean

@@ -254,7 +254,6 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      System.out.println("Updated HandledFeedItems to: " + serializedFeedItems);
       return true;
     }
     else 

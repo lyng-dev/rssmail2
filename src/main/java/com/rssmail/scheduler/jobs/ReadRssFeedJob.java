@@ -53,16 +53,10 @@ public class ReadRssFeedJob implements Job {
       if (!isUnchanged) {
         var updatedFeedItemHashes = new ArrayList<String>(newFeedItemHashes);
         updatedFeedItemHashes.removeAll(lastUpdatedItemHashes);
-        System.out.print("FEED HAS CHANGED. Item hash added is: ");
-        System.out.println(updatedFeedItemHashes);
-        System.out.println("Which is: ");
         newFeedItems.stream().filter(i -> updatedFeedItemHashes.contains(i.getHash())).forEach(i -> {
-          System.out.println(i.getTitle());
           var subscriptionUpdate = new SubscriptionUpdate(subscription, i);
           subscriptionUpdatesQueue.offer(subscriptionUpdate);
         });
-        System.out.print("Queue updated, now contains: ");
-        System.out.println(String.format("%s items", subscriptionUpdatesQueue.size()));
       }
 
     } catch (IllegalArgumentException | FeedException | IOException e) {

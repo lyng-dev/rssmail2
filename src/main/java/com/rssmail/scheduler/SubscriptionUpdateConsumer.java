@@ -9,6 +9,7 @@ import java.util.Queue;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ConsumeSubscriptionUpdate;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
 
@@ -27,21 +28,21 @@ public class SubscriptionUpdateConsumer {
   private HandledSubscriptionFeedItemsContentStore contentStore;
   private Queue<SubscriptionUpdate> subscriptionUpdatesQueue;
   private SubscriptionService subscriptionService;
+  private EmailService emailService;
 
 
-  public SubscriptionUpdateConsumer(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HandledSubscriptionFeedItemsContentStore contentStore, java.util.Queue<SubscriptionUpdate> queue, SubscriptionService subscriptionService) throws SchedulerException {
+  public SubscriptionUpdateConsumer(SchedulerFactory schedulerFactory, ApplicationContextJobFactory applicationContextJobFactory, HandledSubscriptionFeedItemsContentStore contentStore, java.util.Queue<SubscriptionUpdate> queue, SubscriptionService subscriptionService, EmailService emailService) throws SchedulerException {
     this.schedulerFactory = schedulerFactory;
     this.contentStore = contentStore;
     this.subscriptionUpdatesQueue = queue;
     this.subscriptionService = subscriptionService;
+    this.emailService = emailService;
     scheduler = (Scheduler) this.schedulerFactory.getScheduler();
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
 
   public void start() throws SchedulerException {
-
-    System.out.println("Starting updates consumer..");
 
     counter++; //update counter
 
@@ -55,6 +56,7 @@ public class SubscriptionUpdateConsumer {
     jobDataMap.put("feedSubscriptionLastUpdatedContentStore", contentStore);
     jobDataMap.put("subscriptionUpdatesQueue", subscriptionUpdatesQueue);
     jobDataMap.put("subscriptionService", subscriptionService);
+    jobDataMap.put("emailService", emailService);
 
     //create job
     final var job = newJob(ConsumeSubscriptionUpdate.class)

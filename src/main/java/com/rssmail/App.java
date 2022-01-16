@@ -45,38 +45,4 @@ public class App {
     
 	}
 
-  // private static void printLevelOrderTraversal(Node root) {
-  //     if (root == null) {
-  //         return;
-  //     }
-
-  //     if ((root.getLeft() == null && root.getRight() == null)) {
-  //         System.out.println(root.getHash());
-  //     }
-  //     Queue<Node> queue = new LinkedList<>();
-  //     queue.add(root);
-  //     queue.add(null);
-
-  //     while (!queue.isEmpty()) {
-  //         Node node = queue.poll();
-  //         if (node != null) {
-  //             System.out.println(node.getHash());
-  //         } else {
-  //             System.out.println();
-  //             if (!queue.isEmpty()) {
-  //                 queue.add(null);
-  //             }
-  //         }
-
-  //         if (node != null && node.getLeft() != null) {
-  //             queue.add(node.getLeft());
-  //         }
-
-  //         if (node != null && node.getRight() != null) {
-  //             queue.add(node.getRight());
-  //         }
-
-  //     }
-
-  // }
 }

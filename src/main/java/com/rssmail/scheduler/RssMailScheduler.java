@@ -12,6 +12,7 @@ import com.rssmail.models.Subscription;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.utils.hashing.HashTree;
 
@@ -43,8 +44,6 @@ public class RssMailScheduler {
   }
 
   public void start(Subscription subscription) throws SchedulerException {
-    System.out.println("RssMailScheduler producer..");
-
     counter++; //update counter
 
     //incrementally name and group
