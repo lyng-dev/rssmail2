@@ -31,9 +31,12 @@ public class ConsumeSubscriptionUpdate implements Job {
       if (update != null) {
         var feedItem = update.feedItem;
         var subscription = update.subscription;
+        //always assume that we are successful in sending the update
         lastUpdatedContentStore.get(subscription.getId()).add(feedItem);
-        emailService.send(String.format("Recipient: %s, Subject: %s, Body: %s", subscription.getRecipientEmail(), feedItem.getTitle(), feedItem.getUri()));
+        //then persist state
         subscriptionService.persistHandledFeedItems(subscription.getId(), lastUpdatedContentStore.get(subscription.getId()));
+        //then send the actual update. 
+        emailService.send(String.format("Recipient: %s, Subject: %s, Body: %s", subscription.getRecipientEmail(), feedItem.getTitle(), feedItem.getUri()));
       }
 
 
