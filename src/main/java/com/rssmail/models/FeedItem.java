@@ -5,16 +5,16 @@ import java.util.HashMap;
 
 public class FeedItem {
 
-  final private HashMap<String, String> dataBlocks = new HashMap<>();
-
-  private String hash;
-  private String uri;
-  private String title;
-  private String link;
-  private String description;
-  private String publishedDate;
+  private HashMap<String, String> dataBlocks = new HashMap<>();
+  public String hash;
+  public String uri;
+  public String title;
+  public String link;
+  public String description;
+  public String publishedDate;
 
   public FeedItem() {
+
   }
 
   public String getUri() {

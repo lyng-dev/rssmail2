@@ -13,5 +13,4 @@ public interface SubscriptionService {
   public Boolean validateSubscription(String subscriptionid, String validationCode);
   public Boolean persistHandledFeedItems(String subscriptionId, ArrayList<FeedItem> feedItems);
   public Subscription getSubscription(String subscriptionId);
-  public ArrayList<FeedItem> getHandledFeedItems(String subscriptionId);
 }

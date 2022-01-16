@@ -53,7 +53,8 @@ public class RssMailScheduler {
     final var groupName = "rssFeedReader";
 
     //populate the contentstore
-    contentStore.put(subscription.getId(), subscription.getHandledFeedItems());
+    var handledFeedItems = subscription.getHandledFeedItems();
+    contentStore.put(subscription.getId(), handledFeedItems);
 
     //map dynamic data
     final var jobDataMap = new JobDataMap();

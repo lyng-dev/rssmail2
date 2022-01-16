@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
@@ -267,7 +268,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //atttempt deserialization
     try {
-        var result = (ArrayList<FeedItem>)objectMapper.readValue(feedItems, ArrayList.class);
+        var result = (ArrayList<FeedItem>)objectMapper.readValue(feedItems, new TypeReference<ArrayList<FeedItem>>() {});
         return result;
     } catch (Exception e) {
       e.printStackTrace();

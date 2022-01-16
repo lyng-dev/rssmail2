@@ -29,7 +29,8 @@ public class App {
 			final var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
 			final var filterMustBeValidated = true;
 
-      subscriptionService.getAllSubscription(filterMustBeValidated).stream().forEach(subscription -> {
+      final var allSubscriptions = subscriptionService.getAllSubscription(filterMustBeValidated);
+      allSubscriptions.stream().forEach(subscription -> {
 				try {
 					rssScheduler.start(subscription);
 				} catch (SchedulerException e) {
