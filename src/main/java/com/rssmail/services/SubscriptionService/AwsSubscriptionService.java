@@ -119,7 +119,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     if (existingSubscription.getIsValidated()) return true;
     
     //if validationCode is incorrect, the fail
-    if (!existingSubscription.getValidationCode().toString().equals(validationCode.toString())) return false;
+    if (!existingSubscription.getValidationCode().equals(validationCode)) return false;
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
