@@ -17,13 +17,13 @@ public class SubscriptionController {
         this.subscriptionService = subscriptionService;
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
     public ResponseEntity<String> createSubscription(String feedUrl, String recipientEmail) {
         subscriptionService.createSubscription(feedUrl, recipientEmail);
         return ResponseEntity.ok("ok");
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/unsubscribe", method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteSubscription(String subscriptionId, String recipeintEmail) {
         var result = subscriptionService.deleteSubscription(subscriptionId, recipeintEmail);
         if (result) return ResponseEntity.ok("ok");
