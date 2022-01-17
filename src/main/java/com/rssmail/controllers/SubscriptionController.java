@@ -30,8 +30,9 @@ public class SubscriptionController {
 
     @RequestMapping(value = "/validate", method = RequestMethod.POST)
     public ResponseEntity<String> validateSubscription(String subscriptionId, String validationCode) {
-        subscriptionService.validateSubscription(subscriptionId, validationCode);
-        return ResponseEntity.ok("ok");
+        var result = subscriptionService.validateSubscription(subscriptionId, validationCode);
+        if (result) return ResponseEntity.ok("ok");
+        return ResponseEntity.badRequest().build();
     }
 
 }

@@ -119,7 +119,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     if (existingSubscription.getIsValidated()) return true;
     
     //if validationCode is incorrect, the fail
-    if (existingSubscription.getValidationCode() != validationCode) return false;
+    if (!existingSubscription.getValidationCode().toString().equals(validationCode.toString())) return false;
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
@@ -197,9 +197,6 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   @Override
   public List<Subscription> getAllSubscription(Boolean isValidated) {
-
-    //object mapper
-    final var objectMapper = new ObjectMapper();
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
