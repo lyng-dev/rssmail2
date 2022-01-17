@@ -56,6 +56,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     itemValues.put("isValidated", AttributeValue.builder().bool(defaultValidationState).build());
     itemValues.put("validationCode", AttributeValue.builder().s(validationCode).build());
     itemValues.put("createdDate", AttributeValue.builder().s(created).build());
+    itemValues.put("handledFeedItems", AttributeValue.builder().s(created).build());
 
     //prepare request 
     final var request = PutItemRequest.builder()

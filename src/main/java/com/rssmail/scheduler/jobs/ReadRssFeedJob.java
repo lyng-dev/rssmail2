@@ -41,6 +41,10 @@ public class ReadRssFeedJob implements Job {
                                                                .map(x -> x.getHash())
                                                                .collect(Collectors.toList());
 
+      //are we bootstrapping a subscription? First run should not cause sendout en masse.
+      var isBootstrapping = false;
+      if (subscription.getHandledFeedItems() == null || subscription.getHandledFeedItems().size() <= 0) isBootstrapping = true;
+
       //extract feed
       final var newFeedItems = rssService.getFeed(feedUrl);
       final var newFeedItemHashes = new ArrayList<String>(newFeedItems.stream()
@@ -51,10 +55,11 @@ public class ReadRssFeedJob implements Job {
       var isUnchanged = lastUpdatedItemHashes != null ? lastUpdatedItemHashes.containsAll(newFeedItemHashes) : true;
 
       if (!isUnchanged) {
+        final var closureIsBootstrapping = isBootstrapping;
         var updatedFeedItemHashes = new ArrayList<String>(newFeedItemHashes);
         updatedFeedItemHashes.removeAll(lastUpdatedItemHashes);
         newFeedItems.stream().filter(i -> updatedFeedItemHashes.contains(i.getHash())).forEach(i -> {
-          var subscriptionUpdate = new SubscriptionUpdate(subscription, i);
+          var subscriptionUpdate = new SubscriptionUpdate(subscription, i, closureIsBootstrapping);
           subscriptionUpdatesQueue.offer(subscriptionUpdate);
         });
       }

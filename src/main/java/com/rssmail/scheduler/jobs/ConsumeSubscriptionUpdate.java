@@ -36,7 +36,11 @@ public class ConsumeSubscriptionUpdate implements Job {
         //then persist state
         subscriptionService.persistHandledFeedItems(subscription.getId(), lastUpdatedContentStore.get(subscription.getId()));
         //then send the actual update. 
-        emailService.send(String.format("Recipient: %s, Subject: %s, Body: %s", subscription.getRecipientEmail(), feedItem.getTitle(), feedItem.getUri()));
+        
+        if (!update.getIsBootStrapping())
+          emailService.send(String.format("Recipient: %s, Subject: %s, Body: %s", subscription.getRecipientEmail(), feedItem.getTitle(), feedItem.getUri()));
+        else
+          System.out.println("Skipped sending, because we are bootstrapping.");
       }
 
 
