@@ -10,7 +10,7 @@ public interface SubscriptionService {
   public List<Subscription> getAllSubscription(Boolean isValidated);
   public String createSubscription(String feedUrl, String recipientEmail);
   public Boolean deleteSubscription(String subscriptionId, String recipientEmail);
-  public Boolean validateSubscription(String subscriptionid, String validationCode);
+  public Boolean validateSubscription(String subscriptionId, String validationCode);
   public Boolean persistHandledFeedItems(String subscriptionId, ArrayList<FeedItem> feedItems);
   public Subscription getSubscription(String subscriptionId);
 }

@@ -8,15 +8,27 @@ public class Subscription {
   private final String feedUrl;
   private final String recipientEmail;
   private ArrayList<FeedItem> handledFeedItems;
+  private Boolean isValidated;
+  private String validationCode;
 
-  public Subscription(String id, String feedUrl, String recipientEmail) {
+  public Subscription(String id, String feedUrl, String recipientEmail, Boolean isValidated, String validationCode) {
     this.id = id;
     this.feedUrl = feedUrl;
     this.recipientEmail = recipientEmail;
+    this.isValidated = isValidated;
+    this.validationCode = validationCode;
   }
 
-  public Subscription(String id, String feedUrl, String recipientEmail, ArrayList<FeedItem> feedItems) {
-    this(id, feedUrl, recipientEmail);
+  public String getValidationCode() {
+    return validationCode;
+  }
+
+  public Boolean getIsValidated() {
+    return isValidated;
+  }
+
+  public Subscription(String id, String feedUrl, String recipientEmail, Boolean isValidated, String validationCode, ArrayList<FeedItem> feedItems) {
+    this(id, feedUrl, recipientEmail, isValidated, validationCode);
     this.handledFeedItems = feedItems;
   }
 

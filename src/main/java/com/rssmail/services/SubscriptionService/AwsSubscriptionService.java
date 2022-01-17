@@ -112,6 +112,15 @@ public class AwsSubscriptionService implements SubscriptionService {
     //item to update
     final var itemKey = generateSubscriptionItemKey(subscriptionId);
 
+    //get existing subscription
+    final var existingSubscription = getSubscription(subscriptionId);
+
+    //if already validated, succeed.
+    if (existingSubscription.getIsValidated()) return true;
+    
+    //if validationCode is incorrect, the fail
+    if (existingSubscription.getValidationCode() != validationCode) return false;
+
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
     itemValues.put("isValidated", AttributeValueUpdate.builder().value(AttributeValue.builder().bool(true).build()).action(AttributeAction.PUT).build());
@@ -165,10 +174,13 @@ public class AwsSubscriptionService implements SubscriptionService {
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK && response.hasItem()) {
       try {
         final Map<String, AttributeValue> result = response.item();
+        
           var subscription = new Subscription(
             result.get("subscriptionId").s(), 
             result.get("feedUrl").s(), 
             result.get("recipientEmail").s(),
+            result.get("isValidated").bool(),
+            result.get("validationCode").s(),
             (ArrayList<FeedItem>)objectMapper.readValue(result.get("handledFeedItems").s(), ArrayList.class)
           );
 
@@ -212,6 +224,8 @@ public class AwsSubscriptionService implements SubscriptionService {
             x.get("subscriptionId").s(), 
             x.get("feedUrl").s(), 
             x.get("recipientEmail").s(),
+            x.get("isValidated").bool(),
+            x.get("validationCode").s(),
             safeDeserializeFeedItems(x.get("handledFeedItems").s())))
           .toList();
         return result;
