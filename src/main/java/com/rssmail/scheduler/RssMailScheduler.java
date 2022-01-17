@@ -69,9 +69,9 @@ public class RssMailScheduler {
       .build();  
 
     //prepare schedule
-    final var schedule = simpleSchedule().
-      withIntervalInSeconds(30).
-      repeatForever();
+    final var schedule = simpleSchedule()
+      .withIntervalInSeconds(30)
+      .repeatForever();
 
     // Trigger the job to run on the next round minute
     final var trigger = newTrigger()
