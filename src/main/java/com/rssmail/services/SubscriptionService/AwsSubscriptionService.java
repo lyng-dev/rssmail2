@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
+import com.rssmail.services.EmailService.EmailService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,11 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   final private DynamoDbAsyncClient db;
   final private String subscriptionTableName;
+  private EmailService emailService;
 
-  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, String subscriptionTableName) {
+  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, EmailService emailService, String subscriptionTableName) {
     this.db = dynamoDb;
+    this.emailService = emailService;
     this.subscriptionTableName = subscriptionTableName;
   }
 
@@ -42,7 +45,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     final var subscriptionId = UUID.randomUUID().toString();
 
     //generate default validationState
-    final var defaultValidationState = false;
+    final var defaultValidationState = true; //should be false, but for testing might be true.
     final var validationCode = UUID.randomUUID().toString();
 
     //generate createdTime
@@ -56,7 +59,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     itemValues.put("isValidated", AttributeValue.builder().bool(defaultValidationState).build());
     itemValues.put("validationCode", AttributeValue.builder().s(validationCode).build());
     itemValues.put("createdDate", AttributeValue.builder().s(created).build());
-    itemValues.put("handledFeedItems", AttributeValue.builder().s(created).build());
+    itemValues.put("handledFeedItems", AttributeValue.builder().s("[]").build());
 
     //prepare request 
     final var request = PutItemRequest.builder()
@@ -70,6 +73,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
+      emailService.send(String.format("Your subscription for: %s has been created. Please validate your email with the following validationcode: %s", feedUrl, validationCode));
       System.out.println("Created: " + subscriptionId);
       return subscriptionId;
     }

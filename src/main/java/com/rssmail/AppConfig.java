@@ -99,7 +99,7 @@ public class AppConfig {
   public DynamoDbClientBuilder dynamoDbClientBuilder() {
     return DynamoDbClient.builder().region(awsRegion());
   }
-
+  
   @Bean
   public software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient dynamoDbAsyncClient(DynamoDbAsyncClientBuilder dynamodbDbBuilder) {
       return dynamodbDbBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
@@ -107,7 +107,7 @@ public class AppConfig {
 
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
-    return new AwsSubscriptionService(dynamoDbAsyncClient, awsDynamoDbSubscriptionsTableName);
+    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), awsDynamoDbSubscriptionsTableName);
   }
 
   @Bean 

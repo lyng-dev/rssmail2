@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "subscription")
 public class SubscriptionController {
 
-    
-
     private SubscriptionService subscriptionService;
 
     public SubscriptionController(SubscriptionService subscriptionService) {
@@ -20,7 +18,8 @@ public class SubscriptionController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity<String> createSubscription() {
+    public ResponseEntity<String> createSubscription(String feedUrl, String recipientEmail) {
+        subscriptionService.createSubscription(feedUrl, recipientEmail);
         return ResponseEntity.ok("ok");
     }
 
