@@ -24,8 +24,10 @@ public class SubscriptionController {
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteSubscription() {
-        return ResponseEntity.ok("ok");
+    public ResponseEntity<String> deleteSubscription(String subscriptionId, String recipeintEmail) {
+        var result = subscriptionService.deleteSubscription(subscriptionId, recipeintEmail);
+        if (result) return ResponseEntity.ok("ok");
+        return ResponseEntity.badRequest().build();
     }
 
     @RequestMapping(value = "/validate", method = RequestMethod.POST)
