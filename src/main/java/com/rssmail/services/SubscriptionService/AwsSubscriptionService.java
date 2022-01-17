@@ -11,8 +11,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
+import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.EmailService.EmailService;
 
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
@@ -31,10 +33,12 @@ public class AwsSubscriptionService implements SubscriptionService {
   final private DynamoDbAsyncClient db;
   final private String subscriptionTableName;
   private EmailService emailService;
+	private RssMailScheduler rssMailScheduler;
 
-  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, EmailService emailService, String subscriptionTableName) {
+  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, EmailService emailService, RssMailScheduler rssMailScheduler ,String subscriptionTableName) {
     this.db = dynamoDb;
     this.emailService = emailService;
+		this.rssMailScheduler = rssMailScheduler;
     this.subscriptionTableName = subscriptionTableName;
   }
 
@@ -45,7 +49,7 @@ public class AwsSubscriptionService implements SubscriptionService {
     final var subscriptionId = UUID.randomUUID().toString();
 
     //generate default validationState
-    final var defaultValidationState = true; //should be false, but for testing might be true.
+    final var defaultValidationState = false; //should be false, but for testing might be true.
     final var validationCode = UUID.randomUUID().toString();
 
     //generate createdTime
@@ -139,6 +143,11 @@ public class AwsSubscriptionService implements SubscriptionService {
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
       System.out.println("Validated: " + subscriptionId + ", with ValicationCode: " + validationCode);
+      try {
+				rssMailScheduler.start(existingSubscription);
+			} catch (SchedulerException e) {
+				e.printStackTrace();
+			}
       return true;
     }
     else 

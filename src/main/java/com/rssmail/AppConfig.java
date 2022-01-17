@@ -107,7 +107,7 @@ public class AppConfig {
 
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
-    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), awsDynamoDbSubscriptionsTableName);
+    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), (RssMailScheduler)appContext.getBean("rssMailScheduler"),  awsDynamoDbSubscriptionsTableName);
   }
 
   @Bean 
