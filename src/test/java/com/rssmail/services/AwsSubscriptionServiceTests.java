@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.rssmail.TestAppConfig;
+import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 
 import org.junit.jupiter.api.Test;
@@ -29,19 +31,26 @@ public class AwsSubscriptionServiceTests {
  @Mock
  public DynamoDbAsyncClient dynamoDbAsyncClient;
 
+ @Mock
+ public EmailService emailService;
+
+ @Mock RssMailScheduler rssMailScheduler;
+
  @Test
  public void canCallCreateSubscription() {
+
    //Arrange
+
    final String subscriptionTableName = "testing-subscriptions";
-   final AwsSubscriptionService sut = new AwsSubscriptionService(dynamoDbAsyncClient, subscriptionTableName);
+   final AwsSubscriptionService sut = new AwsSubscriptionService(dynamoDbAsyncClient, emailService, rssMailScheduler, subscriptionTableName);
    String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
    String recipient = "bob@example.org";
 
    //Act
-   boolean result = sut.createSubscription(feedUrl, recipient);
+   var result = sut.createSubscription(feedUrl, recipient);
 
    //Assert
-   Assert.isTrue(result, "Expected service call to return true");
+   Assert.isTrue(result.length() > 0, "Expected a subscriptionId, but got an empty string.");
  }
 
 //  @Test

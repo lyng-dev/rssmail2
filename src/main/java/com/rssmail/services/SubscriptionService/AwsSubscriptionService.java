@@ -17,6 +17,8 @@ import com.rssmail.services.EmailService.EmailService;
 import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -44,7 +46,8 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   //TODO: Should validate that the feed is returning good content.
   @Override
-  public String createSubscription(String feedUrl, String recipientEmail) {
+  public String createSubscription(@ModelAttribute("feedUrl") String feedUrl, 
+                                   @ModelAttribute("recipientEmail") String recipientEmail) {
     //generate subscriptionId
     final var subscriptionId = UUID.randomUUID().toString();
 
@@ -77,7 +80,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      emailService.send(String.format("Your subscription for: %s has been created. Please validate your email with the following validationcode: %s", feedUrl, validationCode));
+      emailService.send(String.format("Your subscription for: %s has been created. Please validate your email by following this link: http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s", feedUrl, subscriptionId, validationCode));
       System.out.println("Created: " + subscriptionId);
       return subscriptionId;
     }
