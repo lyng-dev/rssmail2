@@ -18,6 +18,7 @@ public class RssService {
   public RssService(HashTree hashTree) {
   }
 
+  //TODO: Implement caching, so multiple subscriptions can use the same response data
   public ArrayList<FeedItem> getFeed(String feedUrl) throws IllegalArgumentException, FeedException, IOException {
     final var feedSource = new URL(feedUrl);
     final var input = new SyndFeedInput();

@@ -14,6 +14,7 @@ import org.quartz.SchedulerException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.SpringVersion;
 
 @SpringBootApplication
 public class App {
@@ -24,23 +25,25 @@ public class App {
   public static void main(String[] args) {
 		final ApplicationContext appContext = SpringApplication.run(App.class, args);
 		try {
+			System.out.println(String.format("Using Spring Version %s:", SpringVersion.getVersion()));
 			final var rssScheduler = (RssMailScheduler)appContext.getBean("rssMailScheduler");
 			final var subscriptionUpdateConsumer = (SubscriptionUpdateConsumer)appContext.getBean("subscriptionUpdateConsumer");
 			final var subscriptionService = (AwsSubscriptionService)appContext.getBean("awsSubscriptionService");
 			final var filterMustBeValidated = true;
 
+			//start scheduler for all validated subscriptions.
       final var allSubscriptions = subscriptionService.getAllSubscription(filterMustBeValidated);
-      allSubscriptions.stream().forEach(subscription -> {
-				try {
-					rssScheduler.start(subscription);
-				} catch (SchedulerException e) {
-					e.printStackTrace();
-				}
-			});
+      allSubscriptions.stream().forEach(subscription -> rssScheduler.start(subscription));
 
+			//start consumer of subscriptionupdates
       subscriptionUpdateConsumer.start();
+
+			//start the scheduler
+			rssScheduler.startScheduler();
+
 		} catch (Exception e) {
-			System.out.println("something failed");
+			System.out.println("something failed during startup");
+			e.printStackTrace();
 		}
     
 	}

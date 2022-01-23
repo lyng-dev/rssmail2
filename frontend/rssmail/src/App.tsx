@@ -2,6 +2,7 @@ import './App.scss';
 import { Routes, BrowserRouter as Router, Route } from 'react-router-dom'
 import { Header } from './components/Header';
 import { CreateSubscription } from './components/CreateSubscription';
+import { ValidateSubscription } from './components/ValidateSubscription';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
               <Route path="/security">
                   <Security />
               </Route> */}
+              <Route path="/validatesubscription" element={<ValidateSubscription />} />
               <Route path="/" element={<CreateSubscription />} />
           </Routes>
       </Router>

@@ -46,8 +46,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   //TODO: Should validate that the feed is returning good content.
   @Override
-  public String createSubscription(@ModelAttribute("feedUrl") String feedUrl, 
-                                   @ModelAttribute("recipientEmail") String recipientEmail) {
+  public String createSubscription(String feedUrl, String recipientEmail) {
     //generate subscriptionId
     final var subscriptionId = UUID.randomUUID().toString();
 
@@ -146,11 +145,6 @@ public class AwsSubscriptionService implements SubscriptionService {
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
       System.out.println("Validated: " + subscriptionId + ", with ValicationCode: " + validationCode);
-      try {
-				rssMailScheduler.start(existingSubscription);
-			} catch (SchedulerException e) {
-				e.printStackTrace();
-			}
       return true;
     }
     else 

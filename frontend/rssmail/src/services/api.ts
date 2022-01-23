@@ -6,22 +6,22 @@ const createSubscription = async (feedUrl: string, recipientEmail: string) => {
     method: "POST",
     body: JSON.stringify({ feedUrl, recipientEmail }),
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
     },
   });
   return response;
 };
 
 const validateSubscription = async (
-  validationCode: string,
-  subscriptionId: string
+  subscriptionId: string,
+  validationCode: string
 ) => {
   const path = `/subscription/validate`;
   const response = await fetch(`${baseURL}${path}`, {
     method: "POST",
-    body: JSON.stringify({ validationCode, subscriptionId }),
+    body: JSON.stringify({ subscriptionId, validationCode }),
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
     },
   });
   return response;

@@ -1,6 +1,6 @@
 import './style.scss'
 import * as Yup from 'yup'
-import { createSubscription, validateSubscription } from '../../services/api'
+import { createSubscription } from '../../services/api'
 
 import { Formik, FormikHelpers, Form, Field, ErrorMessage } from 'formik'
 

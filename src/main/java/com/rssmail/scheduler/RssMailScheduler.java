@@ -4,26 +4,24 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.util.ArrayList;
 import java.util.Queue;
 
-import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
 import com.rssmail.models.SubscriptionUpdate;
 import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
-import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.JobDataMap;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 
 public class RssMailScheduler {
 
-  private int counter = 0;
+  final private String groupName = "rssFeedReader";
 
   final private SchedulerFactory schedulerFactory;
   final private Scheduler scheduler;
@@ -43,13 +41,22 @@ public class RssMailScheduler {
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public void start(Subscription subscription) throws SchedulerException {
-    counter++; //update counter
+  public Boolean stop(String subscriptionId) throws SchedulerException {
+    try {
+      var jobKey = new JobKey(subscriptionId, this.groupName);
+      System.out.println("Stopping Job: " + jobKey.toString());
+      return scheduler.deleteJob(jobKey);
+    } catch (SchedulerException e) {
+      System.out.println(String.format("Something failed while trying to stop job"));
+      e.printStackTrace();
+    }
+    return false;
+  }
 
+  public String start(Subscription subscription) {
     //incrementally name and group
-    final var jobNumber = String.format("job%s", this.counter);
-    final var triggerNumber = String.format("trigger%s", this.counter);
-    final var groupName = "rssFeedReader";
+    final var jobId = subscription.getId();
+    final var triggerId = subscription.getId();
 
     //populate the contentstore
     var handledFeedItems = subscription.getHandledFeedItems();
@@ -65,7 +72,7 @@ public class RssMailScheduler {
 
     //create job
     final var job = newJob(ReadRssFeedJob.class)
-      .withIdentity(jobNumber, groupName)
+      .withIdentity(jobId, groupName)
       .build();  
 
     //prepare schedule
@@ -75,12 +82,33 @@ public class RssMailScheduler {
 
     // Trigger the job to run on the next round minute
     final var trigger = newTrigger()
-      .withIdentity(triggerNumber, groupName)
+      .withIdentity(triggerId, groupName)
       .withSchedule(schedule)
       .usingJobData(jobDataMap)
       .build();
       
-    scheduler.scheduleJob(job, trigger);
-    scheduler.start();
+
+    try {
+      var jobKey = job.getKey().toString();
+      System.out.println(String.format("Scheduling job %s", jobKey));
+      scheduler.scheduleJob(job, trigger);
+      System.out.println("Starting Job: " + jobKey);
+        return jobKey;
+      } catch (SchedulerException e) {
+        System.out.println(String.format("Something failed while scheduling and starting job."));
+        e.printStackTrace();
+    }
+    return "";
+  }
+
+  public Boolean startScheduler() {
+    try {
+      scheduler.start();
+      return true;
+    } catch (SchedulerException e) {
+      System.out.println("Starting the scheduler threw an exception");
+      e.printStackTrace();
+    }
+    return false;
   }
 }
