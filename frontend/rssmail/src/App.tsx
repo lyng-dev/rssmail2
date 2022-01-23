@@ -3,6 +3,7 @@ import { Routes, BrowserRouter as Router, Route } from 'react-router-dom'
 import { Header } from './components/Header';
 import { CreateSubscription } from './components/CreateSubscription';
 import { ValidateSubscription } from './components/ValidateSubscription';
+import { DeleteSubscription } from './components/DeleteSubscription';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
                   <Security />
               </Route> */}
               <Route path="/validatesubscription" element={<ValidateSubscription />} />
+              <Route path="/deletesubscription" element={<DeleteSubscription />} />
               <Route path="/" element={<CreateSubscription />} />
           </Routes>
       </Router>

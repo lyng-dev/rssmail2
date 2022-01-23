@@ -41,7 +41,7 @@ public class RssMailScheduler {
     scheduler.setJobFactory(applicationContextJobFactory);
   }
 
-  public Boolean stop(String subscriptionId) throws SchedulerException {
+  public Boolean stop(String subscriptionId) {
     try {
       var jobKey = new JobKey(subscriptionId, this.groupName);
       System.out.println("Stopping Job: " + jobKey.toString());
