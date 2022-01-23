@@ -1,7 +1,5 @@
 package com.rssmail.controllers;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.rssmail.models.CreateSubscriptionFormData;
 import com.rssmail.models.DeleteSubscriptionFormData;
 import com.rssmail.models.ValidateSubscriptionFormData;
@@ -9,11 +7,10 @@ import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,20 +26,21 @@ public class SubscriptionController {
         this.scheduler = scheduler;
     }
 
-    @PostMapping(value = "/subscribe")
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<String> deleteSubscription(@RequestBody DeleteSubscriptionFormData formData) {
+        var deletedSubscription = subscriptionService.deleteSubscription(formData.subscriptionId(), formData.recipientEmail());
+        if (deletedSubscription) {
+            scheduler.stop(formData.subscriptionId());
+            return ResponseEntity.ok("ok");
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping(value = "/create")
     public ResponseEntity<String> createSubscription(@RequestBody CreateSubscriptionFormData formData) 
     {
         var newSubscriptionId = subscriptionService.createSubscription(formData.feedUrl(), formData.recipientEmail());
         return ResponseEntity.ok(newSubscriptionId);
-    }
-
-    @RequestMapping(value = "/unsubscribe", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteSubscription(
-        @RequestBody DeleteSubscriptionFormData formData) 
-    {
-        var result = subscriptionService.deleteSubscription(formData.subscriptionId(), formData.recipientEmail());
-        if (result) return ResponseEntity.ok("ok");
-        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(value = "/validate")
