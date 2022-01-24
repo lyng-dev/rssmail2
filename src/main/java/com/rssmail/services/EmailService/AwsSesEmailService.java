@@ -14,28 +14,26 @@ public class AwsSesEmailService implements EmailService {
   
   private SesAsyncClient client;
   private String senderEmail;
-  private String recipientEmail;
 
   public AwsSesEmailService(SesAsyncClient sesAsyncClient, String senderEmail) {
     this.client = sesAsyncClient;
     this.senderEmail = senderEmail;
-    this.recipientEmail = senderEmail;
   }
 
   @Override
-  public void send(String message) {
+  public Boolean send(String recipientEmail, String title, String message) {
 
     //prepare message
     Destination destination = Destination.builder()
       .toAddresses(recipientEmail)
       .build();
 
-    Content content = Content.builder()
-      .data(String.format("<html>%s</html>", message))
+    Content subject = Content.builder()
+      .data(title)
       .build();
 
-    Content sub = Content.builder()
-      .data("Testing ")
+    Content content = Content.builder()
+      .data(message)
       .build();
 
     Body body = Body.builder()
@@ -43,7 +41,7 @@ public class AwsSesEmailService implements EmailService {
       .build();
 
     Message msg = Message.builder()
-      .subject(sub)
+      .subject(subject)
       .body(body)
       .build();
 
@@ -54,16 +52,14 @@ public class AwsSesEmailService implements EmailService {
       .build();
 
     //execute request
-    // final var future = client.sendEmail(emailRequest);
-    // final var response = future.join();
+    final var future = client.sendEmail(emailRequest);
+    final var response = future.join();
 
-    // //if result is a valid
-    // if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      System.out.println("Sent email: " + message);
-//      return subscriptionId;
+    //if result is a valid
+    if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
+      System.out.println(String.format("Sent email: %s \n%s", message, recipientEmail));
+      return true;
     }
-//    else 
-//      return "";
+    return false;
   }
-  
-//}
+}

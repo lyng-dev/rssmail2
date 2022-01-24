@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface EmailService {
 
-  public void send(String message);
+  public Boolean send(String recipientEmail, String title, String message);
   
 }
   

@@ -79,7 +79,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      emailService.send(String.format("Your subscription for: %s has been created. Please validate your email by following this link: http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s", feedUrl, subscriptionId, validationCode));
+      emailService.send(recipientEmail, "RSSMAIL: New subscription to be validation", String.format("Your subscription for: %s has been created. Please validate your email by following this link: http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s", feedUrl, subscriptionId, validationCode));
       System.out.println("Created: " + subscriptionId);
       return subscriptionId;
     }
@@ -203,6 +203,8 @@ public class AwsSubscriptionService implements SubscriptionService {
 
   @Override
   public List<Subscription> getAllSubscription(Boolean isValidated) {
+
+    System.out.println("Retrieving all subscriptions, with validationFilter " + isValidated);
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
