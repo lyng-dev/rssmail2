@@ -43,15 +43,18 @@ public class ConsumeSubscriptionUpdate implements Job {
             feedItem.getTitle(), 
             String.format(
 """
-Hi! - A feed you are subscribing to has updated.
-
-- <a href=\"%\">%s</a>
-
-To delete this subscription visit: http://localhost:3000/validatesubscription?subscriptionId=%s&recipientEmail=%s
-
-That's all.
-
-//RSSMAIL""", feedItem.getUri(), feedItem.getTitle(), subscription.getId(), subscription.getRecipientEmail()));
+<html>
+<body>
+<div>Hi! - A feed you are subscribing to has updated.</div>
+<br/>
+<div><a href=\"%s\">%s</a></div>
+<br/>
+<div>%s</div>
+<br/>
+<div>To stop your subscription: http://localhost:3000/deletesubscription?subscriptionId=%s&recipientEmail=%s</div>
+<br/>
+<div>//RSSMAIL</div></html>
+""", feedItem.getUri(), feedItem.getTitle(), feedItem.getDescription(), subscription.getId(), subscription.getRecipientEmail()));
         else
           System.out.println("Skipped sending, because we are bootstrapping.");
       }

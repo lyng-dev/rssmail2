@@ -80,7 +80,26 @@ public class AwsSubscriptionService implements SubscriptionService {
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
       emailService.send(recipientEmail, "RSSMAIL: New subscription to be validation", String.format("Your subscription for: %s has been created. Please validate your email by following this link: http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s", feedUrl, subscriptionId, validationCode));
-      System.out.println("Created: " + subscriptionId);
+
+      emailService.send(
+        recipientEmail, 
+        "RSSMAIL: Please validate your subscription", 
+        String.format(
+"""
+<html>
+<body>
+<div>Hi! - You have been signed up to RSSMAIL.</div>
+<br/>
+<div>FeedURL: %s</div>
+<br/>
+<div>Validate subscription: <a href=\"http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s\">http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s</a></div>
+<br/>
+<div>If this is a mistake, delete it by visiting: http://localhost:3000/deletesubscription?subscriptionId=%s&recipientEmail=%s</div>
+<br/>
+<div>Unvalidated subscriptions get automatically deleted within a few days.</div>
+<br/>
+<div>//RSSMAIL</div></html>
+""", feedUrl, subscriptionId, validationCode, subscriptionId, validationCode, subscriptionId, recipientEmail));
       return subscriptionId;
     }
     else 
