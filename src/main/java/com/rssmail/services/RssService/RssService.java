@@ -17,6 +17,18 @@ public class RssService {
 
   public RssService(HashTree hashTree) {
   }
+ 
+  public Boolean validateFeed(String feedUrl) {
+    try {
+      final var feedSource = new URL(feedUrl);
+      final var input = new SyndFeedInput();
+      final var feed = input.build(new XmlReader(feedSource));
+      return true;
+    } catch (Exception e) {
+      //swallow, because it's not interesting.
+    }
+    return false;
+  }
 
   //TODO: Implement caching, so multiple subscriptions can use the same response data
   public ArrayList<FeedItem> getFeed(String feedUrl) throws IllegalArgumentException, FeedException, IOException {
@@ -35,6 +47,7 @@ public class RssService {
     if (item.getTitle().length() > 0) feedItem.setTitle(item.getTitle());
     if (item.getLink().length() > 0) feedItem.setLink(item.getLink());
     if (item.getPublishedDate() != null) feedItem.setPublishedDate(item.getPublishedDate().toString());
+    if (item.getDescription() != null) feedItem.setDescription(item.getDescription().getValue().toString());
 
     final var dataBlocks = new ArrayList<String>();
     if (feedItem.getUri().length() > 0) dataBlocks.add(feedItem.getUri());

@@ -3,7 +3,7 @@ import * as Yup from 'yup'
 import { validateSubscription } from '../../services/api'
 
 import { Formik, FormikHelpers, Form, Field, ErrorMessage } from 'formik'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 interface Values {
   subscriptionId: string
@@ -17,6 +17,8 @@ const subscriptionSchema = Yup.object().shape({
 
 export const ValidateSubscription = () => {
 
+  const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
   const subscriptionId = searchParams.get('subscriptionId')
   const validationCode = searchParams.get('validationCode');
@@ -27,10 +29,8 @@ export const ValidateSubscription = () => {
   }
 
   const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-    console.log(values.subscriptionId);
-    console.log(values.validationCode);
     const response = await validateSubscription(values.subscriptionId, values.validationCode)
-    console.log(response.json().toString())
+    navigate('/validatedsubscription')
   }
 
   return (

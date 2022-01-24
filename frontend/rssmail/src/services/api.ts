@@ -41,4 +41,21 @@ const deleteSubscription = async (
   return response;
 };
 
-export { createSubscription, validateSubscription, deleteSubscription };
+const checkFeed = async (feedUrl: string) => {
+  const path = `/subscription/checkfeed`;
+  const response = await fetch(`${baseURL}${path}`, {
+    method: "POST",
+    body: JSON.stringify({ feedUrl }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response;
+};
+
+export {
+  createSubscription,
+  validateSubscription,
+  deleteSubscription,
+  checkFeed,
+};

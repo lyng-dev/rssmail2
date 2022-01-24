@@ -1,8 +1,9 @@
 import './style.scss'
 import * as Yup from 'yup'
-import { createSubscription } from '../../services/api'
+import { createSubscription, checkFeed } from '../../services/api'
 
 import { Formik, FormikHelpers, Form, Field, ErrorMessage } from 'formik'
+import { useNavigate } from 'react-router-dom'
 
 interface Values {
   feedUrl: string
@@ -10,11 +11,21 @@ interface Values {
 }
 
 const subscriptionSchema = Yup.object().shape({
-  feedUrl: Yup.string().url().required(),
+  feedUrl: Yup.string()
+  .required()
+  .url()
+  .test('valid feed', 'Specified feed url does not appear to be valid', 
+    async (val) => {
+      const response = await checkFeed(val ?? "")
+      if (response.ok) return true;
+      return false;
+    }),
   recipientEmail: Yup.string().email().required()
 })
 
 export const CreateSubscription = () => {
+
+  const navigate = useNavigate();
 
   const initialValues: Values = {
     feedUrl: '',
@@ -22,8 +33,15 @@ export const CreateSubscription = () => {
   }
 
   const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-    const response = await createSubscription(values.feedUrl, values.recipientEmail)
-    console.log(response.json().toString())
+    const checkFeedResponse = await checkFeed(values.feedUrl)
+    if (checkFeedResponse.ok) {
+      const createSubscriptionResponse = await createSubscription(values.feedUrl, values.recipientEmail)
+      if (createSubscriptionResponse.ok) {
+        navigate('/createdsubscription')
+      } else {
+  
+      }
+    }
   }
 
   return (

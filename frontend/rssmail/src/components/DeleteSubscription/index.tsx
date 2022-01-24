@@ -3,7 +3,7 @@ import * as Yup from 'yup'
 import { deleteSubscription } from '../../services/api'
 
 import { Formik, FormikHelpers, Form, Field, ErrorMessage } from 'formik'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 interface Values {
   subscriptionId: string
@@ -16,7 +16,7 @@ const subscriptionSchema = Yup.object().shape({
 })
 
 export const DeleteSubscription = () => {
-
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const subscriptionId = searchParams.get('subscriptionId')
   const recipientEmail = searchParams.get('recipientEmail');
@@ -27,10 +27,8 @@ export const DeleteSubscription = () => {
   }
 
   const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-    console.log(values.subscriptionId);
-    console.log(values.recipientEmail);
     const response = await deleteSubscription(values.subscriptionId, values.recipientEmail)
-    console.log(response.json().toString())
+    navigate('/deletedsubscription')
   }
 
   return (

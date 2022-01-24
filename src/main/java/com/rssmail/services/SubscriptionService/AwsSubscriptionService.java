@@ -79,8 +79,6 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      emailService.send(recipientEmail, "RSSMAIL: New subscription to be validation", String.format("Your subscription for: %s has been created. Please validate your email by following this link: http://localhost:3000/validatesubscription?subscriptionId=%s&validationCode=%s", feedUrl, subscriptionId, validationCode));
-
       emailService.send(
         recipientEmail, 
         "RSSMAIL: Please validate your subscription", 

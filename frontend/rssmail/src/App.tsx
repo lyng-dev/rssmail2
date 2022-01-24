@@ -4,6 +4,9 @@ import { Header } from './components/Header';
 import { CreateSubscription } from './components/CreateSubscription';
 import { ValidateSubscription } from './components/ValidateSubscription';
 import { DeleteSubscription } from './components/DeleteSubscription';
+import { ValidatedSubscription } from './components/ValidatedSubscription';
+import { DeletedSubscription } from './components/DeletedSubscription';
+import { CreatedSubscription } from './components/CreatedSubscription';
 
 const App = () => {
   return (
@@ -23,9 +26,12 @@ const App = () => {
               <Route path="/security">
                   <Security />
               </Route> */}
+              <Route path="/validatedsubscription" element={<ValidatedSubscription />} />
+              <Route path="/deletedsubscription" element={<DeletedSubscription />} />
               <Route path="/validatesubscription" element={<ValidateSubscription />} />
               <Route path="/deletesubscription" element={<DeleteSubscription />} />
               <Route path="/" element={<CreateSubscription />} />
+              <Route path="/createdsubscription" element={<CreatedSubscription />} />
           </Routes>
       </Router>
       {/* <Spinner

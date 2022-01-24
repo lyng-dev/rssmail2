@@ -1,9 +1,11 @@
 package com.rssmail.controllers;
 
+import com.rssmail.models.CheckFeedFormData;
 import com.rssmail.models.CreateSubscriptionFormData;
 import com.rssmail.models.DeleteSubscriptionFormData;
 import com.rssmail.models.ValidateSubscriptionFormData;
 import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.services.RssService.RssService;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
 
 import org.springframework.http.ResponseEntity;
@@ -20,10 +22,20 @@ public class SubscriptionController {
 
     private SubscriptionService subscriptionService;
     private RssMailScheduler scheduler;
+    private RssService rssService;
 
-    public SubscriptionController(SubscriptionService subscriptionService, RssMailScheduler scheduler) {
+    public SubscriptionController(SubscriptionService subscriptionService, RssMailScheduler scheduler, RssService rssService) {
         this.subscriptionService = subscriptionService;
         this.scheduler = scheduler;
+        this.rssService = rssService;
+    }
+
+    //todo: instead return json with validity state inside, and always return 200
+    @PostMapping(value = "/checkfeed")
+    public ResponseEntity<String> checkFeed(@RequestBody CheckFeedFormData formData) {
+        var isValidFeed = rssService.validateFeed(formData.feedUrl());
+        if (isValidFeed) return ResponseEntity.ok("ok");
+        return ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping(value = "/delete")
@@ -39,8 +51,13 @@ public class SubscriptionController {
     @PostMapping(value = "/create")
     public ResponseEntity<String> createSubscription(@RequestBody CreateSubscriptionFormData formData) 
     {
-        var newSubscriptionId = subscriptionService.createSubscription(formData.feedUrl(), formData.recipientEmail());
-        return ResponseEntity.ok(newSubscriptionId);
+        var feedUrl = formData.feedUrl();
+        var feedIsValid = rssService.validateFeed(feedUrl);
+        if (feedIsValid) {
+            var newSubscriptionId = subscriptionService.createSubscription(formData.feedUrl(), formData.recipientEmail());
+            return ResponseEntity.ok(newSubscriptionId);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(value = "/validate")
