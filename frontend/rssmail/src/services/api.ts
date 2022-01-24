@@ -33,6 +33,7 @@ const deleteSubscription = async (
 ) => {
   const path = `/subscription/delete`;
   const response = await fetch(`${baseURL}${path}`, {
+    method: "DELETE",
     body: JSON.stringify({ subscriptionId, recipientEmail }),
     headers: {
       "Content-Type": "application/json",
