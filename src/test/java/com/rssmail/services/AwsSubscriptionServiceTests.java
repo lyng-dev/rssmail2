@@ -1,5 +1,6 @@
 package com.rssmail.services;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.CompletableFuture;
 
 import com.rssmail.TestAppConfig;
+import com.rssmail.models.Subscription;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
@@ -30,6 +32,8 @@ import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,6 +45,7 @@ public class AwsSubscriptionServiceTests {
   private RssMailScheduler mockRssMailScheduler;
   private UUID mockUuid;
   private String mockSubscriptionTableName;
+  private AwsSubscriptionService sut;
   
   @MockBean DynamoDbAsyncClient mockDb;
 
@@ -50,19 +55,78 @@ public class AwsSubscriptionServiceTests {
     mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
     mockUuid = Mockito.mock(UUID.class);
     mockSubscriptionTableName = "testing-subscriptions";
+    sut = new AwsSubscriptionService(
+      mockDb, 
+      mockEmailService, 
+      mockRssMailScheduler, 
+      mockUuid, 
+      mockSubscriptionTableName);
+  }
+
+  @Test
+  public void canValidateSubscriptionWithValidParamets() {
+
+    //Arrange
+    var sutSpy = Mockito.spy(sut);
+  
+    String subscriptionId = "testId";
+    String validationCode = "validationCode";
+    var fakeSubscription = new Subscription(subscriptionId, "feedUrl", "bob@example.org", false, "validationCode");
+    var mockUpdateItemCompletableFuture = (CompletableFuture<UpdateItemResponse>)Mockito.mock(CompletableFuture.class);
+    var mockUpdateItemResponse = Mockito.mock(UpdateItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
+    
+    when(mockDb.updateItem(Mockito.any(UpdateItemRequest.class))).thenReturn(mockUpdateItemCompletableFuture);
+    when(mockUpdateItemCompletableFuture.join()).thenReturn(mockUpdateItemResponse);
+    Mockito.doReturn(fakeSubscription).when(sutSpy).getSubscription(subscriptionId);
+    when(mockUpdateItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_OK);
+    
+    //Act
+    var result = sutSpy.validateSubscription(subscriptionId, validationCode);
+    
+    //Assert
+    verify(sutSpy, times(1)).getSubscription(anyString());
+    verify(mockDb, times(1)).updateItem(Mockito.any(UpdateItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
+    verify(mockUpdateItemCompletableFuture, times(1)).join();
+    Assert.isTrue(result, String.format("Expected a 'true' result, but got '%s'", result.toString()));
+  }
+
+  @Test
+  public void validateSubscriptionReturnsFalseOnDbError() {
+
+    //Arrange
+    var sutSpy = Mockito.spy(sut);
+  
+    String subscriptionId = "testId";
+    String validationCode = "validationCode";
+    var fakeSubscription = new Subscription(subscriptionId, "feedUrl", "bob@example.org", false, "validationCode");
+    var mockUpdateItemCompletableFuture = (CompletableFuture<UpdateItemResponse>)Mockito.mock(CompletableFuture.class);
+    var mockUpdateItemResponse = Mockito.mock(UpdateItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
+    
+    when(mockDb.updateItem(Mockito.any(UpdateItemRequest.class))).thenReturn(mockUpdateItemCompletableFuture);
+    when(mockUpdateItemCompletableFuture.join()).thenReturn(mockUpdateItemResponse);
+    Mockito.doReturn(fakeSubscription).when(sutSpy).getSubscription(subscriptionId);
+    when(mockUpdateItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
+    
+    //Act
+    var result = sutSpy.validateSubscription(subscriptionId, validationCode);
+    
+    //Assert
+    verify(sutSpy, times(1)).getSubscription(anyString());
+    verify(mockDb, times(1)).updateItem(Mockito.any(UpdateItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
+    verify(mockUpdateItemCompletableFuture, times(1)).join();
+    Assert.isTrue(!result, String.format("Expected a 'false' result, but got '%s'", result.toString()));
   }
 
   @Test
   public void canDeleteSubscriptionWithValidParamets() {
 
     //Arrange
-    AwsSubscriptionService sut = new AwsSubscriptionService(
-      mockDb, 
-      mockEmailService, 
-      mockRssMailScheduler, 
-      mockUuid, 
-      mockSubscriptionTableName);
-
     String recipient = "bob@example.org";
     String subscriptionId = "testId";
     var mockDeleteItemCompletableFuture = (CompletableFuture<DeleteItemResponse>)Mockito.mock(CompletableFuture.class);
@@ -120,13 +184,6 @@ public class AwsSubscriptionServiceTests {
   public void canCreateSubscriptionWithValidParameters() {
 
     //Arrange
-    AwsSubscriptionService sut = new AwsSubscriptionService(
-      mockDb, 
-      mockEmailService, 
-      mockRssMailScheduler, 
-      mockUuid, 
-      mockSubscriptionTableName);
-
     String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
     String recipient = "bob@example.org";
     String title = "RSSMAIL: Please validate your subscription";
@@ -160,13 +217,6 @@ public class AwsSubscriptionServiceTests {
   public void createSubcriptionReturnsEmptyStringOnDbError() {
 
     //Arrange
-    AwsSubscriptionService sut = new AwsSubscriptionService(
-      mockDb, 
-      mockEmailService, 
-      mockRssMailScheduler, 
-      mockUuid, 
-      mockSubscriptionTableName);
-      
     String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
     String recipient = "bob@example.org";
     String title = "RSSMAIL: Please validate your subscription";
