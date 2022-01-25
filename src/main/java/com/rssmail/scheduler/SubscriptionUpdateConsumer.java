@@ -7,7 +7,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 import java.util.Queue;
 
 import com.rssmail.models.SubscriptionUpdate;
-import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ConsumeSubscriptionUpdate;
 import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;

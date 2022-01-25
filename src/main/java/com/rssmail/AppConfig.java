@@ -4,14 +4,15 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.rssmail.models.SubscriptionUpdate;
+import com.rssmail.scheduler.ApplicationContextJobFactory;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.SubscriptionUpdateConsumer;
-import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.services.EmailService.AwsSesEmailService;
 import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
+import com.rssmail.utils.UUID;
 import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.SchedulerException;
@@ -93,6 +94,11 @@ public class AppConfig {
   }
 
   @Bean
+  public UUID getUuid() {
+    return new UUID();
+  }
+
+  @Bean
   public DynamoDbAsyncClientBuilder dynamoDbAsyncClientBuilder() {
     return DynamoDbAsyncClient.builder().region(awsRegion());
   }
@@ -109,7 +115,7 @@ public class AppConfig {
 
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
-    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), (RssMailScheduler)appContext.getBean("rssMailScheduler"),  awsDynamoDbSubscriptionsTableName);
+    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), (RssMailScheduler)appContext.getBean("rssMailScheduler"), (UUID)appContext.getBean("getUuid"), awsDynamoDbSubscriptionsTableName);
   }
 
   @Bean 

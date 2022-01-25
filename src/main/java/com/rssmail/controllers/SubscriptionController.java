@@ -66,8 +66,6 @@ public class SubscriptionController {
     {
         var subscriptionId = formData.subscriptionId();
         var validationCode = formData.validationCode();
-        System.out.println(subscriptionId);
-        System.out.println(validationCode);
         var result = subscriptionService.validateSubscription(subscriptionId, validationCode);
         if (result) {
             try {

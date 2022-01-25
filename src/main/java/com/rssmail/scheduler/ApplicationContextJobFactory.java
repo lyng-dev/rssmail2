@@ -1,4 +1,4 @@
-package com.rssmail.scheduler.jobs;
+package com.rssmail.scheduler;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

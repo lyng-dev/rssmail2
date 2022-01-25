@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +12,7 @@ import com.rssmail.models.FeedItem;
 import com.rssmail.models.Subscription;
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.EmailService.EmailService;
+import com.rssmail.utils.UUID;
 
 import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
@@ -36,11 +36,13 @@ public class AwsSubscriptionService implements SubscriptionService {
   final private String subscriptionTableName;
   private EmailService emailService;
 	private RssMailScheduler rssMailScheduler;
+  private UUID uuid;
 
-  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, EmailService emailService, RssMailScheduler rssMailScheduler ,String subscriptionTableName) {
+  public AwsSubscriptionService(DynamoDbAsyncClient dynamoDb, EmailService emailService, RssMailScheduler rssMailScheduler, UUID uuid, String subscriptionTableName) {    
     this.db = dynamoDb;
     this.emailService = emailService;
 		this.rssMailScheduler = rssMailScheduler;
+    this.uuid = uuid;
     this.subscriptionTableName = subscriptionTableName;
   }
 
@@ -48,11 +50,11 @@ public class AwsSubscriptionService implements SubscriptionService {
   @Override
   public String createSubscription(String feedUrl, String recipientEmail) {
     //generate subscriptionId
-    final var subscriptionId = UUID.randomUUID().toString();
+    final var subscriptionId = uuid.random().toString();
 
     //generate default validationState
     final var defaultValidationState = false; //should be false, but for testing might be true.
-    final var validationCode = UUID.randomUUID().toString();
+    final var validationCode = uuid.random().toString();
 
     //generate createdTime
     final var created = Instant.now().toString();

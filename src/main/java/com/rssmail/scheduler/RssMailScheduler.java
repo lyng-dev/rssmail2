@@ -8,7 +8,6 @@ import java.util.Queue;
 
 import com.rssmail.models.Subscription;
 import com.rssmail.models.SubscriptionUpdate;
-import com.rssmail.scheduler.jobs.ApplicationContextJobFactory;
 import com.rssmail.scheduler.jobs.ReadRssFeedJob;
 import com.rssmail.services.HandledSubscriptionFeedItemsContentStore.HandledSubscriptionFeedItemsContentStore;
 import com.rssmail.utils.hashing.HashTree;
