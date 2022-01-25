@@ -1,5 +1,7 @@
 package com.rssmail.services;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Assert;
 
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
@@ -57,17 +60,22 @@ public class AwsSubscriptionServiceTests {
     String messageForTheUser = "test message";
     var mockPutItemCompletableFuture = (CompletableFuture<PutItemResponse>)Mockito.mock(CompletableFuture.class);
     var mockPutItemResponse = Mockito.mock(PutItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
 
     when(mockUuid.random()).thenReturn(java.util.UUID.fromString(expectedGuid));
     when(mockEmailService.send(recipient, title, messageForTheUser)).thenReturn(true);
     when(mockDb.putItem(Mockito.any(PutItemRequest.class))).thenReturn(mockPutItemCompletableFuture);
     when(mockPutItemCompletableFuture.join()).thenReturn(mockPutItemResponse);
-    when(mockPutItemResponse.sdkHttpResponse().statusCode()).thenReturn(200);
+    when(mockPutItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(200);
 
     //Act
     var result = sut.createSubscription(feedUrl, recipient);
 
     //Assert
+    verify(mockUuid, times(2)).random();
+    verify(mockDb, times(1)).putItem(Mockito.any(PutItemRequest.class));
+    verify(mockEmailService, times(1)).send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     Assert.isTrue(result.length() > 0, "Expected a subscriptionId, but got an empty string.");
     Assert.isTrue(result.equals(expectedGuid), String.format("Expected subscriptionId of '%s', but got '%s'", expectedGuid, result));
   }
