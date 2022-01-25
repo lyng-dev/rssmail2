@@ -25,6 +25,8 @@ import org.springframework.util.Assert;
 
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
@@ -35,6 +37,78 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 public class AwsSubscriptionServiceTests {
 
   @MockBean DynamoDbAsyncClient mockDb;
+
+  @Test
+  public void canDeleteSubscriptionWithValidParamets() {
+
+    //Arrange
+    var mockEmailService = Mockito.mock(EmailService.class);
+    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
+    var mockUuid = Mockito.mock(UUID.class);
+    String mockSubscriptionTableName = "testing-subscriptions";
+
+    AwsSubscriptionService sut = new AwsSubscriptionService(
+      mockDb, 
+      mockEmailService, 
+      mockRssMailScheduler, 
+      mockUuid, 
+      mockSubscriptionTableName);
+    String recipient = "bob@example.org";
+    String subscriptionId = "testId";
+    var mockDeleteItemCompletableFuture = (CompletableFuture<DeleteItemResponse>)Mockito.mock(CompletableFuture.class);
+    var mockDeleteItemResponse = Mockito.mock(DeleteItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
+
+    when(mockDb.deleteItem(Mockito.any(DeleteItemRequest.class))).thenReturn(mockDeleteItemCompletableFuture);
+    when(mockDeleteItemCompletableFuture.join()).thenReturn(mockDeleteItemResponse);
+    when(mockDeleteItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_OK);
+
+    //Act
+    var result = sut.deleteSubscription(subscriptionId, recipient);
+
+    //Assert
+    verify(mockDb, times(1)).deleteItem(Mockito.any(DeleteItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
+    verify(mockDeleteItemCompletableFuture, times(1)).join();
+    Assert.isTrue(result, String.format("Expected a 'true' result, but got '%s'", result.toString()));
+  }
+
+  @Test
+  public void deleteSubscriptionReturnsEmptyStringOnDbError() {
+
+    //Arrange
+    var mockEmailService = Mockito.mock(EmailService.class);
+    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
+    var mockUuid = Mockito.mock(UUID.class);
+    String mockSubscriptionTableName = "testing-subscriptions";
+
+    AwsSubscriptionService sut = new AwsSubscriptionService(
+      mockDb, 
+      mockEmailService, 
+      mockRssMailScheduler, 
+      mockUuid, 
+      mockSubscriptionTableName);
+    String recipient = "bob@example.org";
+    String subscriptionId = "testId";
+    var mockDeleteItemCompletableFuture = (CompletableFuture<DeleteItemResponse>)Mockito.mock(CompletableFuture.class);
+    var mockDeleteItemResponse = Mockito.mock(DeleteItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
+
+    when(mockDb.deleteItem(Mockito.any(DeleteItemRequest.class))).thenReturn(mockDeleteItemCompletableFuture);
+    when(mockDeleteItemCompletableFuture.join()).thenReturn(mockDeleteItemResponse);
+    when(mockDeleteItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
+
+    //Act
+    var result = sut.deleteSubscription(subscriptionId, recipient);
+
+    //Assert
+    verify(mockDb, times(1)).deleteItem(Mockito.any(DeleteItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
+    verify(mockDeleteItemCompletableFuture, times(1)).join();
+    Assert.isTrue(!result, String.format("Expected a 'false' result, but got '%s'", result.toString()));
+  }
 
   @Test
   public void canCreateSubscriptionWithValidParameters() {
@@ -75,6 +149,7 @@ public class AwsSubscriptionServiceTests {
     verify(mockDb, times(1)).putItem(Mockito.any(PutItemRequest.class));
     verify(mockSdkHttpResponse, times(1)).statusCode();
     verify(mockEmailService, times(1)).send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    verify(mockPutItemCompletableFuture, times(1)).join();
     Assert.isTrue(result.length() > 0, "Expected a subscriptionId, but got an empty string.");
     Assert.isTrue(result.equals(expectedGuid), String.format("Expected subscriptionId of '%s', but got '%s'", expectedGuid, result));
   }
@@ -118,26 +193,10 @@ public class AwsSubscriptionServiceTests {
     verify(mockDb, times(1)).putItem(Mockito.any(PutItemRequest.class));
     verify(mockSdkHttpResponse, times(1)).statusCode();
     verify(mockEmailService, times(0)).send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    verify(mockPutItemCompletableFuture, times(1)).join();
     Assert.isTrue(result.length() == 0, String.format("Expected empty subscriptionId, but received '%s' instead", result));
   }
 
-//  @Test
-//  public void GivenDeleteSubscriptionIsCalled_WhenValidInformationIsSupplied_ThenShouldDeleteSubscription() {
-//    //Arrange
-//    DeleteItemRequest mockDeleteItemRequest = mock(DeleteItemRequest.class);
-//    CompletableFuture<DeleteItemResponse> mockDeleteItemResponseCompletableFuture = (CompletableFuture<DeleteItemResponse>)mock(CompletableFuture.class);
-//    when(mockDeleteItemRequest.)
-//    when(dynamoDbAsyncClient.deleteItem(deleteItemRequest)).then();
-//    final AwsSubscriptionService sut = new AwsSubscriptionService(dynamoDbAsyncClient);
-//    String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
-//    String recipient = "bob@example.org";
-//
-//    //Act
-//    boolean result = sut.deleteSubscription(feedUrl, recipient);
-//
-//    //Assert
-//    Assert.isTrue(result, "Expected service call to return true");
-//  }
 
 }
 
