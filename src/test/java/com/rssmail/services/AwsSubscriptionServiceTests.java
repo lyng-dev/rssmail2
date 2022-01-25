@@ -12,6 +12,7 @@ import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 import com.rssmail.utils.UUID;
 
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ public class AwsSubscriptionServiceTests {
   @MockBean DynamoDbAsyncClient mockDb;
 
   @Test
-  public void canCallCreateSubscriptionWithValidParameters() {
+  public void canCreateSubscriptionWithValidParameters() {
 
     //Arrange
     var mockEmailService = Mockito.mock(EmailService.class);
@@ -67,7 +68,7 @@ public class AwsSubscriptionServiceTests {
     when(mockDb.putItem(Mockito.any(PutItemRequest.class))).thenReturn(mockPutItemCompletableFuture);
     when(mockPutItemCompletableFuture.join()).thenReturn(mockPutItemResponse);
     when(mockPutItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
-    when(mockSdkHttpResponse.statusCode()).thenReturn(200);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_OK);
 
     //Act
     var result = sut.createSubscription(feedUrl, recipient);
@@ -75,9 +76,52 @@ public class AwsSubscriptionServiceTests {
     //Assert
     verify(mockUuid, times(2)).random();
     verify(mockDb, times(1)).putItem(Mockito.any(PutItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
     verify(mockEmailService, times(1)).send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     Assert.isTrue(result.length() > 0, "Expected a subscriptionId, but got an empty string.");
     Assert.isTrue(result.equals(expectedGuid), String.format("Expected subscriptionId of '%s', but got '%s'", expectedGuid, result));
+  }
+
+  @Test
+  public void createSubcriptionReturnsEmptyStringOnDbError() {
+
+    //Arrange
+    var mockEmailService = Mockito.mock(EmailService.class);
+    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
+    var mockUuid = Mockito.mock(UUID.class);
+    String mockSubscriptionTableName = "testing-subscriptions";
+
+    AwsSubscriptionService sut = new AwsSubscriptionService(
+      mockDb, 
+      mockEmailService, 
+      mockRssMailScheduler, 
+      mockUuid, 
+      mockSubscriptionTableName);
+    String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
+    String recipient = "bob@example.org";
+    String title = "RSSMAIL: Please validate your subscription";
+    String expectedGuid = "7e5b24dc-b070-4fee-9a4e-0bfbcc1fe049";
+    String messageForTheUser = "test message";
+    var mockPutItemCompletableFuture = (CompletableFuture<PutItemResponse>)Mockito.mock(CompletableFuture.class);
+    var mockPutItemResponse = Mockito.mock(PutItemResponse.class);
+    var mockSdkHttpResponse = Mockito.mock(SdkHttpResponse.class);
+
+    when(mockUuid.random()).thenReturn(java.util.UUID.fromString(expectedGuid));
+    when(mockEmailService.send(recipient, title, messageForTheUser)).thenReturn(true);
+    when(mockDb.putItem(Mockito.any(PutItemRequest.class))).thenReturn(mockPutItemCompletableFuture);
+    when(mockPutItemCompletableFuture.join()).thenReturn(mockPutItemResponse);
+    when(mockPutItemResponse.sdkHttpResponse()).thenReturn(mockSdkHttpResponse);
+    when(mockSdkHttpResponse.statusCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
+
+    //Act
+    var result = sut.createSubscription(feedUrl, recipient);
+
+    //Assert
+    verify(mockUuid, times(2)).random();
+    verify(mockDb, times(1)).putItem(Mockito.any(PutItemRequest.class));
+    verify(mockSdkHttpResponse, times(1)).statusCode();
+    verify(mockEmailService, times(0)).send(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    Assert.isTrue(result.length() == 0, String.format("Expected empty subscriptionId, but received '%s' instead", result));
   }
 
 //  @Test
