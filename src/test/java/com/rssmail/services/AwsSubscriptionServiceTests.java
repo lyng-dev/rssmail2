@@ -13,6 +13,7 @@ import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
 import com.rssmail.utils.UUID;
 
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -35,24 +36,33 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 @Import(TestAppConfig.class)
 @ExtendWith(SpringExtension.class)
 public class AwsSubscriptionServiceTests {
-
+  
+  private EmailService mockEmailService;
+  private RssMailScheduler mockRssMailScheduler;
+  private UUID mockUuid;
+  private String mockSubscriptionTableName;
+  
   @MockBean DynamoDbAsyncClient mockDb;
+
+  @BeforeEach
+  private void beforeEach() {
+    mockEmailService = Mockito.mock(EmailService.class);
+    mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
+    mockUuid = Mockito.mock(UUID.class);
+    mockSubscriptionTableName = "testing-subscriptions";
+  }
 
   @Test
   public void canDeleteSubscriptionWithValidParamets() {
 
     //Arrange
-    var mockEmailService = Mockito.mock(EmailService.class);
-    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
-    var mockUuid = Mockito.mock(UUID.class);
-    String mockSubscriptionTableName = "testing-subscriptions";
-
     AwsSubscriptionService sut = new AwsSubscriptionService(
       mockDb, 
       mockEmailService, 
       mockRssMailScheduler, 
       mockUuid, 
       mockSubscriptionTableName);
+
     String recipient = "bob@example.org";
     String subscriptionId = "testId";
     var mockDeleteItemCompletableFuture = (CompletableFuture<DeleteItemResponse>)Mockito.mock(CompletableFuture.class);
@@ -78,17 +88,13 @@ public class AwsSubscriptionServiceTests {
   public void deleteSubscriptionReturnsEmptyStringOnDbError() {
 
     //Arrange
-    var mockEmailService = Mockito.mock(EmailService.class);
-    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
-    var mockUuid = Mockito.mock(UUID.class);
-    String mockSubscriptionTableName = "testing-subscriptions";
-
     AwsSubscriptionService sut = new AwsSubscriptionService(
       mockDb, 
       mockEmailService, 
       mockRssMailScheduler, 
       mockUuid, 
       mockSubscriptionTableName);
+
     String recipient = "bob@example.org";
     String subscriptionId = "testId";
     var mockDeleteItemCompletableFuture = (CompletableFuture<DeleteItemResponse>)Mockito.mock(CompletableFuture.class);
@@ -114,17 +120,13 @@ public class AwsSubscriptionServiceTests {
   public void canCreateSubscriptionWithValidParameters() {
 
     //Arrange
-    var mockEmailService = Mockito.mock(EmailService.class);
-    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
-    var mockUuid = Mockito.mock(UUID.class);
-    String mockSubscriptionTableName = "testing-subscriptions";
-
     AwsSubscriptionService sut = new AwsSubscriptionService(
       mockDb, 
       mockEmailService, 
       mockRssMailScheduler, 
       mockUuid, 
       mockSubscriptionTableName);
+
     String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
     String recipient = "bob@example.org";
     String title = "RSSMAIL: Please validate your subscription";
@@ -158,17 +160,13 @@ public class AwsSubscriptionServiceTests {
   public void createSubcriptionReturnsEmptyStringOnDbError() {
 
     //Arrange
-    var mockEmailService = Mockito.mock(EmailService.class);
-    var mockRssMailScheduler = Mockito.mock(RssMailScheduler.class);
-    var mockUuid = Mockito.mock(UUID.class);
-    String mockSubscriptionTableName = "testing-subscriptions";
-
     AwsSubscriptionService sut = new AwsSubscriptionService(
       mockDb, 
       mockEmailService, 
       mockRssMailScheduler, 
       mockUuid, 
       mockSubscriptionTableName);
+      
     String feedUrl = "https://aws.amazon.com/blogs/aws/feed/";
     String recipient = "bob@example.org";
     String title = "RSSMAIL: Please validate your subscription";
