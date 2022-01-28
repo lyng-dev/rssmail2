@@ -9,3 +9,15 @@ module "email-service" {
   env = var.env
   project_name = var.project_name
 }
+
+module "ecr-reposity" {
+  source = "../modules/ecr"
+  env = var.env
+  project_name = var.project_name
+}
+
+module "backend" {
+  source = "../modules/backend"
+  env = var.env
+  project_name = var.project_name
+}
