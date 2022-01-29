@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN mvn package -Dproject.build.finalName=${finalName}
+RUN mvn package -Dproject.build.finalName{=$finalName} -Dmaven.test.skip=true
 
 ENTRYPOINT [ "java", "-jar", "target/${finalName}.jar" ]

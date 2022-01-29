@@ -1,10 +1,14 @@
 package com.rssmail;
 
+import com.rssmail.scheduler.RssMailScheduler;
+import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
+import com.rssmail.utils.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -15,6 +19,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClientBuilder;
 
 @TestConfiguration
 public class TestAppConfig {
+
+  @Autowired private ApplicationContext appContext;
 
   @Autowired
   Environment env;
@@ -49,8 +55,9 @@ public class TestAppConfig {
   public DynamoDbAsyncClient dynamoDbClient(DynamoDbAsyncClientBuilder dynamodbDbBuilder) {
       return dynamodbDbBuilder.build();
   }
+
   @Bean
   public AwsSubscriptionService awsSubscriptionService(DynamoDbAsyncClient dynamoDbAsyncClient) {
-    return new AwsSubscriptionService(dynamoDbAsyncClient, awsDynamoDbSubscriptionsTableName);
+    return new AwsSubscriptionService(dynamoDbAsyncClient, (EmailService)appContext.getBean(EmailService.class), (RssMailScheduler)appContext.getBean("rssMailScheduler"), (UUID)appContext.getBean("getUuid"), awsDynamoDbSubscriptionsTableName);
   }
 }
