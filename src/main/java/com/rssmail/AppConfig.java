@@ -36,6 +36,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
 import software.amazon.awssdk.services.ses.SesAsyncClient;
 import software.amazon.awssdk.services.ses.SesAsyncClientBuilder;
+import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 @Configuration
 public class AppConfig {
@@ -51,14 +52,35 @@ public class AppConfig {
   final Environment env;
 
   //fields: environment variables
-  @Value("${RSSMAIL_AWS_ACCESS_KEY_ID}")
-  public String envAwsAccessKeyId;
+  public String getEnvAwsAccessKeyId() {
+    final String localEnv = "RSSMAIL_AWS_ACCESS_KEY_ID";
+    if (System.getenv(localEnv).length() > 0) {
+      System.out.println(String.format("FOUND %s", localEnv));
+      return System.getenv(localEnv);
+    } else {
+      return "";
+    }
+  };
 
-  @Value("${RSSMAIL_AWS_SECRET_ACCESS_KEY}")
-  public String envAwsSecretAccessKey;
+  public String getEnvAwsSecretAccessKey() {
+    final String localEnv = "RSSMAIL_AWS_SECRET_ACCESS_KEY";
+    if (System.getenv(localEnv).length() > 0) {
+      System.out.println(String.format("FOUND %s", localEnv));
+      return System.getenv(localEnv);
+    } else {
+      return "";
+    }
+  };
 
-  @Value("${RSSMAIL_AWS_REGION}")
-  public String envAwsRegion;
+  public String getEnvAwsRegion() {
+    final String localEnv = "RSSMAIL_AWS_REGION";
+    if (System.getenv(localEnv).length() > 0) {
+      System.out.println(String.format("FOUND %s", localEnv));
+      return System.getenv(localEnv);
+    } else {
+      return EC2MetadataUtils.getEC2InstanceRegion();
+    }
+  };
 
   @Value("${senderemail:rssmail@lyng.dev}")
   public String senderEmail;
@@ -69,7 +91,23 @@ public class AppConfig {
 
   //Beans
   @Bean AwsBasicCredentials getAwsCredentials() {
-    return AwsBasicCredentials.create(envAwsAccessKeyId, envAwsSecretAccessKey);
+    return AwsBasicCredentials.create(getEnvAwsAccessKeyId(), getEnvAwsSecretAccessKey());
+  }
+
+  @Bean AwsCredentialsProvider getCredentialsProvider() {
+    try {
+      if (EC2MetadataUtils.getAmiId().length() > 0) { 
+        //obtain instance credentials
+        var credentialsProvider = InstanceProfileCredentialsProvider.create();
+        if (credentialsProvider.resolveCredentials().accessKeyId().length() > 0 && credentialsProvider.resolveCredentials().secretAccessKey().length() > 0) {
+          return credentialsProvider;
+        } 
+      }
+    } catch (Exception e) {
+      //swallow for now
+    }
+    //default to basic, for local
+    return StaticCredentialsProvider.create(getAwsCredentials());
   }
 
   @Bean
@@ -84,12 +122,12 @@ public class AppConfig {
 
   @Bean
   public SesAsyncClient sesAsyncClient(SesAsyncClientBuilder sesAsyncClientBuilder) {
-      return sesAsyncClientBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
+      return sesAsyncClientBuilder.credentialsProvider(getCredentialsProvider()).build();
   }
 
   @Bean
   Region awsRegion() {
-    final String region = envAwsRegion;
+    final String region = getEnvAwsRegion();
     return Region.of(region);
   }
 

@@ -1,29 +1,35 @@
 #!/bin/bash
 
-# prepare yum
-sudo yum update
+LOG=/etc/user-data.log
 
-# dependency for json
-sudo yum install jq 
+function install_dependencies() {
 
-# dependency for docker
-sudo yum install docker -y
-wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) 
-sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
-sudo chmod -v +x /usr/local/bin/docker-compose
-sudo systemctl enable docker.service
-sudo systemctl start docker.service
+  echo "Installing docker with amazon-linux-extras" >> $LOG
+  sudo amazon-linux-extras install docker -y && \ 
+  echo "Starting docker service" >> $LOG
+  sudo service docker start && \ 
+  echo "Setting usermod for docker" >> $LOG
+  sudo usermod -a -G docker ec2-user
+  echo "Ensure service starts on every reboot" >> $LOG
+  sudo chkconfig docker on
 
-# ensure that docker has started
-until docker version > /dev/null 2>&1
-do 
-  sleep 1
-done
+}
 
-# login to ecr
-aws_account_id = $(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .accountId)
-aws_region = $(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq .region -r)
-aws ecr get-login-password --region $aws_region | docker login --username AWS --password-stdin $aws_account_id.dkr.ecr.$aws_region.amazonaws.com
+# Do single reboot
+HAS_REBOOTED=/etc/rebooted
+echo "Checking has rebooted" >> $LOG
+if [ ! -f "$HAS_REBOOTED" ]; then
 
-# pull images to ec2 instance
-docker pull $aws_account_id.dkr.ecr.$aws_region.amazonaws.com/rssmail:latest
+  echo "Installing dependencies" >> $LOG
+  install_dependencies
+
+  echo "Has not rebooted" >> $LOG
+  touch $HAS_REBOOTED
+  echo "Creating Has rebooted file" >> $LOG
+  rm /var/lib/cloud/instances/*/sem/config_scripts_user >> $LOG
+  echo "Removing has run user data semaphore" >> $LOG
+  echo "Rebooting">> $LOG
+  reboot >> $LOG
+fi
+
+echo "After reboot sequence" >> $LOG

@@ -1,11 +1,7 @@
-FROM maven:3.8.4-openjdk-17-slim
-
-ARG finalName
+FROM openjdk:17-alpine
 
 WORKDIR /app
 
-COPY . /app
+COPY target/rssmail*.jar rssmail.jar
 
-RUN mvn package -Dproject.build.finalName{=$finalName} -Dmaven.test.skip=true
-
-ENTRYPOINT [ "java", "-jar", "target/${finalName}.jar" ]
+ENTRYPOINT [ "java", "-jar", "rssmail.jar" ]

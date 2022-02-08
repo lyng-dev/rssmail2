@@ -35,31 +35,33 @@ public class ConsumeSubscriptionUpdate implements Job {
         lastUpdatedContentStore.get(subscription.getId()).add(feedItem);
         //then persist state
         subscriptionService.persistHandledFeedItems(subscription.getId(), lastUpdatedContentStore.get(subscription.getId()));
-        //then send the actual update. 
-        
-        if (!update.getIsBootStrapping())
-          emailService.send(
-            subscription.getRecipientEmail(), 
-            feedItem.getTitle(), 
-            String.format(
-"""
-<html>
-<body>
-<div>Hi! - A feed you are subscribing to has updated.</div>
-<br/>
-<div><a href=\"%s\">%s</a></div>
-<br/>
-<div>%s</div>
-<br/>
-<div>To stop your subscription: http://localhost:3000/deletesubscription?subscriptionId=%s&recipientEmail=%s</div>
-<br/>
-<div>//RSSMAIL</div></html>
-""", feedItem.getUri(), feedItem.getTitle(), feedItem.getDescription(), subscription.getId(), subscription.getRecipientEmail()));
+        //then send the actual update.
+
+        if (!update.getIsBootStrapping()) {
+          System.out.println("would have sent email");
+        }
+//           emailService.send(
+//             subscription.getRecipientEmail(),
+//             feedItem.getTitle(),
+//             String.format(
+// """
+// <html>
+// <body>
+// <div>Hi! - A feed you are subscribing to has updated.</div>
+// <br/>
+// <div><a href=\"%s\">%s</a></div>
+// <br/>
+// <div>%s</div>
+// <br/>
+// <div>To stop your subscription: http://localhost:3000/deletesubscription?subscriptionId=%s&recipientEmail=%s</div>
+// <br/>
+// <div>//RSSMAIL</div></html>
+// """, feedItem.getUri(), feedItem.getTitle(), feedItem.getDescription(), subscription.getId(), subscription.getRecipientEmail()));
         else
           System.out.println("Skipped sending, because we are bootstrapping.");
       }
 
 
   }
-  
+
 }

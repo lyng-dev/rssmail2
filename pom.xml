@@ -10,9 +10,9 @@
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
+	<version>0.0.1</version>
 	<groupId>com.rssmail</groupId>
 	<artifactId>rssmail</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>rssmail</name>
 	<description>RESTful web application that allows for subscription RSS feeds, and send emails with new content.</description>
 	<properties>
@@ -108,7 +108,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName></finalName>
 	</build>
 
 </project>

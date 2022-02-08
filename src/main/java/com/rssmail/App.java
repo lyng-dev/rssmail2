@@ -1,16 +1,9 @@
 package com.rssmail;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.scheduler.SubscriptionUpdateConsumer;
 import com.rssmail.services.SubscriptionService.AwsSubscriptionService;
-import com.rssmail.utils.hashing.HashTree;
-import com.rssmail.utils.hashing.Node;
 
-import org.quartz.SchedulerException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;

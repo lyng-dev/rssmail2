@@ -1,7 +1,6 @@
 #!/bin/bash
 
-if (( $# < 1 ))
-then
+if (( $# < 1 )); then
     printf "%b" "Error. Not enough arguments.\n" >&2
     printf "%b" "usage: $0 <finalName>\n" >&2
     exit 1
