@@ -54,7 +54,8 @@ public class AppConfig {
   //fields: environment variables
   public String getEnvAwsAccessKeyId() {
     final String localEnv = "RSSMAIL_AWS_ACCESS_KEY_ID";
-    if (System.getenv(localEnv).length() > 0) {
+    final String env_var = System.getenv(localEnv);
+    if (env_var != null && System.getenv(localEnv).length() > 0) {
       System.out.println(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
@@ -64,7 +65,8 @@ public class AppConfig {
 
   public String getEnvAwsSecretAccessKey() {
     final String localEnv = "RSSMAIL_AWS_SECRET_ACCESS_KEY";
-    if (System.getenv(localEnv).length() > 0) {
+    final String env_var = System.getenv(localEnv);
+    if (env_var != null && System.getenv(localEnv).length() > 0) {
       System.out.println(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
@@ -74,7 +76,8 @@ public class AppConfig {
 
   public String getEnvAwsRegion() {
     final String localEnv = "RSSMAIL_AWS_REGION";
-    if (System.getenv(localEnv).length() > 0) {
+    final String env_var = System.getenv(localEnv);
+    if (env_var != null && System.getenv(localEnv).length() > 0) {
       System.out.println(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
@@ -90,7 +93,7 @@ public class AppConfig {
   public String awsDynamoDbSubscriptionsTableName;
 
   //Beans
-  @Bean AwsBasicCredentials getAwsCredentials() {
+  private AwsBasicCredentials getAwsCredentials() {
     return AwsBasicCredentials.create(getEnvAwsAccessKeyId(), getEnvAwsSecretAccessKey());
   }
 
@@ -148,7 +151,7 @@ public class AppConfig {
   
   @Bean
   public software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient dynamoDbAsyncClient(DynamoDbAsyncClientBuilder dynamodbDbBuilder) {
-      return dynamodbDbBuilder.credentialsProvider(StaticCredentialsProvider.create(getAwsCredentials())).build();
+      return dynamodbDbBuilder.credentialsProvider(getCredentialsProvider()).build();
   }
 
   @Bean

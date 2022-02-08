@@ -47,5 +47,5 @@ docker_image=$aws_account_id.dkr.ecr.$aws_region.amazonaws.com/rssmail:latest >>
 docker pull $docker_image >> $LOG
 
 echo "Setting up container to run every time we restart, unless we specifically stop it." >> $LOG
-docker run -d --restart unless-stopped $docker_image >> $LOG
+docker run -d -p 8080:8080 --restart unless-stopped $docker_image >> $LOG
 

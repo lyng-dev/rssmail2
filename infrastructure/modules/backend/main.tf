@@ -10,7 +10,7 @@ resource "aws_instance" "rssmail-backend" {
 
   user_data = file("${path.module}/userscript.sh")
 
-  vpc_security_group_ids = [aws_security_group.allow-ssh.id]
+  vpc_security_group_ids = [aws_security_group.allow-ssh.id, aws_security_group.allow-http.id]
 
   credit_specification {
     cpu_credits = "unlimited"
@@ -58,6 +58,13 @@ resource "aws_iam_role_policy" "backend-role-policy" {
         Effect   = "Allow"
         Resource = "*"
       },
+      {
+        Action = [
+          "dynamodb:*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
     ]
   })
 }
@@ -72,6 +79,29 @@ resource "aws_security_group" "allow-ssh" {
     description      = "Inbound SSH"
     from_port        = 22
     to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  egress {
+    description      = "allow all"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+resource "aws_security_group" "allow-http" {
+  name        = "allow_http"
+  description = "Allow inbound traffic"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description      = "Inbound SSH"
+    from_port        = 8080
+    to_port          = 8080
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
