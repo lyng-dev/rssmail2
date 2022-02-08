@@ -1,12 +1,16 @@
 resource "aws_instance" "rssmail-backend" {
   
   #ami           = "ami-0a8b4cd432b1c3063" # us-east-1
-  ami = "ami-01b996646377b6619" #ubuntu
+  ami = "ami-0a8b4cd432b1c3063" #amazon linux 2 us-east-1
   instance_type = "t3.nano"
+
+  iam_instance_profile = aws_iam_instance_profile.backend-profile.name
 
   key_name = "rssmail-backend"
 
   user_data = file("${path.module}/userscript.sh")
+
+  vpc_security_group_ids = [aws_security_group.allow-ssh.id]
 
   credit_specification {
     cpu_credits = "unlimited"
@@ -56,4 +60,20 @@ resource "aws_iam_role_policy" "backend-role-policy" {
       },
     ]
   })
+}
+
+# security group
+resource "aws_security_group" "allow-ssh" {
+  name        = "allow_ssh"
+  description = "Allow inbound traffic"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description      = "Inbound SSH"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 }
