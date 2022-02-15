@@ -22,3 +22,10 @@ module "backend" {
   project_name = var.project_name
   vpc_id = var.backend_vpc_id
 }
+
+module "backend_api" {
+  source = "../modules/backend/api"
+  env = var.env
+  project_name = var.project_name
+  vpc_id = var.backend_vpc_id
+}
