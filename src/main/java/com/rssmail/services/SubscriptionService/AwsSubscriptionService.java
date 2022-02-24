@@ -15,6 +15,8 @@ import com.rssmail.services.EmailService.EmailService;
 import com.rssmail.utils.UUID;
 
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +33,8 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 @Service
 public class AwsSubscriptionService implements SubscriptionService {
+
+	private static Logger logger = LoggerFactory.getLogger(AwsSubscriptionService.class);
 
   final private DynamoDbAsyncClient db;
   final private String subscriptionTableName;
@@ -163,7 +167,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      System.out.println("Validated: " + subscriptionId + ", with ValicationCode: " + validationCode);
+      logger.info("Validated: " + subscriptionId + ", with ValicationCode: " + validationCode);
       return true;
     }
     else 
@@ -209,10 +213,10 @@ public class AwsSubscriptionService implements SubscriptionService {
             (ArrayList<FeedItem>)objectMapper.readValue(result.get("handledFeedItems").s(), ArrayList.class)
           );
 
-        System.out.print("Retrieved " + subscription.getHandledFeedItems().size() + " items from persistant storage");
+          logger.info("Retrieved " + subscription.getHandledFeedItems().size() + " items from persistant storage");
         return subscription;
       } catch (Exception e) {
-        System.out.println("something bad happened");
+        logger.error("something bad happened");
       }
     }
 
@@ -223,7 +227,7 @@ public class AwsSubscriptionService implements SubscriptionService {
   @Override
   public List<Subscription> getAllSubscription(Boolean isValidated) {
 
-    System.out.println("Retrieving all subscriptions, with validationFilter " + isValidated);
+    logger.info("Retrieving all subscriptions, with validationFilter " + isValidated);
 
     //values to update in item
     final var itemValues = new HashMap<String, AttributeValueUpdate>();
@@ -254,7 +258,7 @@ public class AwsSubscriptionService implements SubscriptionService {
           .toList();
         return result;
       } catch (Exception e) {
-        System.out.println("something bad happened");
+        logger.error("something bad happened");
       }
     }
     return List.<Subscription>of();  }
@@ -276,7 +280,7 @@ public class AwsSubscriptionService implements SubscriptionService {
       e.printStackTrace();
     }
     if (serializationFailed) {
-      System.out.println("Failed to serialize FeedItems. Operation halted. Nothing was persisted to storage.");
+      logger.warn("Failed to serialize FeedItems. Operation halted. Nothing was persisted to storage.");
       return false;
     }
 
@@ -313,6 +317,7 @@ public class AwsSubscriptionService implements SubscriptionService {
         var result = (ArrayList<FeedItem>)objectMapper.readValue(feedItems, new TypeReference<ArrayList<FeedItem>>() {});
         return result;
     } catch (Exception e) {
+      logger.error("an error occured: " + e.getStackTrace());
       e.printStackTrace();
     }
 

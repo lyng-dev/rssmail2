@@ -17,6 +17,8 @@ import com.rssmail.utils.hashing.HashTree;
 
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -41,6 +43,8 @@ import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 @Configuration
 public class AppConfig {
 
+	private static Logger logger = LoggerFactory.getLogger(AppConfig.class);
+
   @Autowired private ApplicationContext appContext;
   
   //constructor
@@ -56,7 +60,7 @@ public class AppConfig {
     final String localEnv = "RSSMAIL_AWS_ACCESS_KEY_ID";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
-      System.out.println(String.format("FOUND %s", localEnv));
+      logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
       return "";
@@ -67,7 +71,7 @@ public class AppConfig {
     final String localEnv = "RSSMAIL_AWS_SECRET_ACCESS_KEY";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
-      System.out.println(String.format("FOUND %s", localEnv));
+      logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
       return "";
@@ -78,7 +82,7 @@ public class AppConfig {
     final String localEnv = "RSSMAIL_AWS_REGION";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
-      System.out.println(String.format("FOUND %s", localEnv));
+      logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
       return EC2MetadataUtils.getEC2InstanceRegion();
