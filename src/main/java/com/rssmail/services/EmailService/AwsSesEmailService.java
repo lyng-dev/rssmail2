@@ -14,8 +14,10 @@ public class AwsSesEmailService implements EmailService {
   
   private SesAsyncClient client;
   private String senderEmail;
+  private Boolean enabled;
 
-  public AwsSesEmailService(SesAsyncClient sesAsyncClient, String senderEmail) {
+  public AwsSesEmailService(Boolean enabled, SesAsyncClient sesAsyncClient, String senderEmail) {
+    this.enabled = enabled;
     this.client = sesAsyncClient;
     this.senderEmail = senderEmail;
   }
@@ -52,14 +54,19 @@ public class AwsSesEmailService implements EmailService {
       .build();
 
     //execute request
-    final var future = client.sendEmail(emailRequest);
-    final var response = future.join();
-
-    //if result is a valid
-    if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      System.out.println(String.format("Sent email: %s \n%s", message, recipientEmail));
+    if (this.enabled) {
+      final var future = client.sendEmail(emailRequest);
+      final var response = future.join();
+  
+      //if result is a valid
+      if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
+        System.out.println(String.format("Sent email: %s \n%s", message, recipientEmail));
+        return true;
+      }
+      return false;
+    } else {
+      System.out.println(String.format("Email disabled, would have sent email to: %s \n%s", message, recipientEmail));
       return true;
     }
-    return false;
   }
 }

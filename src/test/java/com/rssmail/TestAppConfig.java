@@ -25,13 +25,13 @@ public class TestAppConfig {
   @Autowired
   Environment env;
 
-  @Value("${RSSMAIL_AWS_ACCESS_KEY_ID}")
+  @Value("${AWS_ACCESS_KEY_ID}")
   public String envAwsAccessKeyId;
 
-  @Value("${RSSMAIL_AWS_SECRET_ACCESS_KEY}")
+  @Value("${AWS_SECRET_ACCESS_KEY}")
   public String envAwsSecretAccessKey;
 
-  @Value("${RSSMAIL_AWS_REGION}")
+  @Value("${AWS_REGION}")
   public String envAwsRegion;
 
   //fields: application properties

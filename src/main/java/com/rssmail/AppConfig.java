@@ -57,37 +57,43 @@ public class AppConfig {
 
   //fields: environment variables
   public String getEnvAwsAccessKeyId() {
-    final String localEnv = "RSSMAIL_AWS_ACCESS_KEY_ID";
+    final String localEnv = "AWS_ACCESS_KEY_ID";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
       logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
+      logger.info(String.format("No env var '%s' found. Assuming EC2 instance.", localEnv));
       return "";
     }
   };
 
   public String getEnvAwsSecretAccessKey() {
-    final String localEnv = "RSSMAIL_AWS_SECRET_ACCESS_KEY";
+    final String localEnv = "AWS_SECRET_ACCESS_KEY";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
       logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
+      logger.info(String.format("No env var '%s' found. Assuming EC2 instance.", localEnv));
       return "";
     }
   };
 
   public String getEnvAwsRegion() {
-    final String localEnv = "RSSMAIL_AWS_REGION";
+    final String localEnv = "AWS_REGION";
     final String env_var = System.getenv(localEnv);
     if (env_var != null && System.getenv(localEnv).length() > 0) {
       logger.info(String.format("FOUND %s", localEnv));
       return System.getenv(localEnv);
     } else {
+      logger.info(String.format("No env var '%s' found. Assuming EC2 instance.", localEnv));
       return EC2MetadataUtils.getEC2InstanceRegion();
     }
   };
+
+  @Value("${service.email.enabled:false}")
+  public boolean serviceEmailEnabled;
 
   @Value("${senderemail:rssmail@lyng.dev}")
   public String senderEmail;
@@ -185,7 +191,7 @@ public class AppConfig {
 
   @Bean 
   public EmailService awsEmailService() {
-    return new AwsSesEmailService(appContext.getBean(SesAsyncClient.class), senderEmail);
+    return new AwsSesEmailService(serviceEmailEnabled, appContext.getBean(SesAsyncClient.class), senderEmail);
   }
 
   @Bean
