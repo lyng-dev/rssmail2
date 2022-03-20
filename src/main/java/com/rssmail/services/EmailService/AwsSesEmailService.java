@@ -1,5 +1,7 @@
 package com.rssmail.services.EmailService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import software.amazon.awssdk.services.ses.SesAsyncClient;
@@ -11,6 +13,7 @@ import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 
 public class AwsSesEmailService implements EmailService {
 
+  private static Logger logger = LoggerFactory.getLogger(AwsSesEmailService.class);
   
   private SesAsyncClient client;
   private String senderEmail;
@@ -60,12 +63,12 @@ public class AwsSesEmailService implements EmailService {
   
       //if result is a valid
       if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-        System.out.println(String.format("Sent email: %s \n%s", message, recipientEmail));
+        logger.info(String.format("Sent email: %s \n%s", recipientEmail, message));
         return true;
       }
       return false;
     } else {
-      System.out.println(String.format("Email disabled, would have sent email to: %s \n%s", message, recipientEmail));
+      logger.info(String.format("Email disabled, would have sent email to: %s \n%s", recipientEmail, message));
       return true;
     }
   }

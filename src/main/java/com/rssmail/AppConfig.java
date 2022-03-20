@@ -191,6 +191,7 @@ public class AppConfig {
 
   @Bean 
   public EmailService awsEmailService() {
+    logger.info(String.format("Configuring EmailService. Service enabled: %s", serviceEmailEnabled));
     return new AwsSesEmailService(serviceEmailEnabled, appContext.getBean(SesAsyncClient.class), senderEmail);
   }
 

@@ -8,6 +8,8 @@ import com.rssmail.scheduler.RssMailScheduler;
 import com.rssmail.services.RssService.RssService;
 import com.rssmail.services.SubscriptionService.SubscriptionService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "subscription")
 public class SubscriptionController {
+
+	private static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
 
     private SubscriptionService subscriptionService;
     private RssMailScheduler scheduler;
@@ -74,7 +78,7 @@ public class SubscriptionController {
                 return ResponseEntity.ok("ok");
             } 
             catch (Exception e) {
-                System.out.println("Something bad happened in SubscriptionController.validateSubscription");
+                logger.error(e.getMessage(), e);            
             }
         }
         return ResponseEntity.badRequest().build();

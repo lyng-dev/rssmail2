@@ -128,7 +128,7 @@ public class AwsSubscriptionService implements SubscriptionService {
 
     //if result is a valid
     if (HttpStatus.valueOf(response.sdkHttpResponse().statusCode()) == HttpStatus.OK) {
-      System.out.println("Deleted: " + subscriptionId);
+      logger.info("Deleted: " + subscriptionId);
       return true;
     }
     else 

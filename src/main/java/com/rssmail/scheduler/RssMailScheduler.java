@@ -17,8 +17,11 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RssMailScheduler {
+	private static Logger logger = LoggerFactory.getLogger(RssMailScheduler.class);
 
   final private String groupName = "rssFeedReader";
 
@@ -43,11 +46,10 @@ public class RssMailScheduler {
   public Boolean stop(String subscriptionId) {
     try {
       var jobKey = new JobKey(subscriptionId, this.groupName);
-      System.out.println("Stopping Job: " + jobKey.toString());
+      logger.info("Stopping Job: " + jobKey.toString());
       return scheduler.deleteJob(jobKey);
     } catch (SchedulerException e) {
-      System.out.println(String.format("Something failed while trying to stop job"));
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
     return false;
   }
@@ -89,14 +91,13 @@ public class RssMailScheduler {
 
     try {
       var jobKey = job.getKey().toString();
-      System.out.println(String.format("Scheduling job %s", jobKey));
+      logger.info(String.format("Scheduling job %s", jobKey));
       scheduler.scheduleJob(job, trigger);
-      System.out.println("Starting Job: " + jobKey);
+      logger.info("Starting Job: " + jobKey);
         return jobKey;
       } catch (SchedulerException e) {
-        System.out.println(String.format("Something failed while scheduling and starting job."));
-        e.printStackTrace();
-    }
+        logger.error(e.getMessage(), e);
+      }
     return "";
   }
 
@@ -105,8 +106,7 @@ public class RssMailScheduler {
       scheduler.start();
       return true;
     } catch (SchedulerException e) {
-      System.out.println("Starting the scheduler threw an exception");
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
     return false;
   }
